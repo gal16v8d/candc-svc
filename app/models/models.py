@@ -4,9 +4,7 @@ from app.models.database import db
 
 
 class BaseSqlModelMixin:
-    '''Common methods for all db models'''
-    name = Column(db.String(64), nullable=False, unique=True)
-
+    '''Add util method for all the models'''
     def to_dict(self):
         '''Transform sql model to dict'''
         return { c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs }
@@ -18,6 +16,11 @@ class BaseSqlModelMixin:
 class LogicalDeletionMixin:
     '''This Mixin inherits logical attribute for entities'''
     active = Column(db.Boolean, default=True, nullable=False)
+
+
+class NamedMixin:
+    '''Append common name prop to all models'''
+    name = Column(db.String(64), nullable=False, unique=True)
 
 
 class DataCostMixin:
@@ -32,14 +35,14 @@ class DataCostMixin:
     is_special = Column(db.Boolean, default=False, nullable=False)
 
 
-class Game(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
+class Game(db.Model, BaseSqlModelMixin, LogicalDeletionMixin, NamedMixin):
     '''If several games in db are registered allows to select one'''
     __tablename__ = 'game'
 
     game_id = Column(db.BigInteger, primary_key=True, autoincrement=True)
 
 
-class Faction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
+class Faction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin, NamedMixin):
     '''Represents the specific faction'''
     __tablename__ = 'faction'
 
@@ -54,7 +57,7 @@ class Faction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     )
 
 
-class Structure(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
+class Structure(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin, NamedMixin):
     '''Structures each faction can build'''
     __tablename__ = 'structure'
 
@@ -62,7 +65,7 @@ class Structure(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin
     build_on_water = Column(db.Boolean, default=False, nullable=False)
 
 
-class StructureXFaction(db.Model, LogicalDeletionMixin):
+class StructureXFaction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     '''
     Since some structures can repeat for each faction,
     then adding intermediate table to avoid duplicates
@@ -83,7 +86,7 @@ class StructureXFaction(db.Model, LogicalDeletionMixin):
     )
 
 
-class Infantry(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
+class Infantry(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin, NamedMixin):
     '''Infantry each faction can build'''
     __tablename__ = 'infantry'
 
@@ -92,7 +95,7 @@ class Infantry(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin)
     can_fly = Column(db.Boolean, default=False, nullable=False)
 
 
-class InfantryXFaction(db.Model, LogicalDeletionMixin):
+class InfantryXFaction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     '''
     Since infantry can repeat for each faction,
     then adding intermediate table to avoid duplicates
@@ -113,7 +116,7 @@ class InfantryXFaction(db.Model, LogicalDeletionMixin):
     )
 
 
-class Tank(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
+class Tank(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin, NamedMixin):
     '''Tank each faction can build'''
     __tablename__ = 'tank'
 
@@ -121,7 +124,7 @@ class Tank(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
     can_swim = Column(db.Boolean, default=False, nullable=False)
 
 
-class TankXFaction(db.Model, LogicalDeletionMixin):
+class TankXFaction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     '''
     Since tank can repeat for each faction,
     then adding intermediate table to avoid duplicates
@@ -142,7 +145,7 @@ class TankXFaction(db.Model, LogicalDeletionMixin):
     )
 
 
-class Boat(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
+class Boat(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin, NamedMixin):
     '''Boat each faction can build'''
     __tablename__ = 'boat'
 
@@ -150,7 +153,7 @@ class Boat(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
     can_go_ground = Column(db.Boolean, default=False, nullable=False)
 
 
-class BoatXFaction(db.Model, LogicalDeletionMixin):
+class BoatXFaction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     '''
     Since boat can repeat for each faction,
     then adding intermediate table to avoid duplicates
@@ -171,14 +174,14 @@ class BoatXFaction(db.Model, LogicalDeletionMixin):
     )
 
 
-class Plane(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin):
+class Plane(db.Model, BaseSqlModelMixin, DataCostMixin, LogicalDeletionMixin, NamedMixin):
     '''Plane each faction can build'''
     __tablename__ = 'plane'
 
     plane_id = Column(db.BigInteger, primary_key=True, autoincrement=True)
 
 
-class PlaneXFaction(db.Model, LogicalDeletionMixin):
+class PlaneXFaction(db.Model, BaseSqlModelMixin, LogicalDeletionMixin):
     '''
     Since plane can repeat for each faction,
     then adding intermediate table to avoid duplicates

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+	{% block body %}
+        <img src={{url_for('static', filename='images/flask-logo.png')}} alt="page logo" width="250" height="250" />
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<caption>Registered Data</caption>
+				<thead>
+					<tr>
+						{% for key in data[0].keys() %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in data %}
+                        <tr>
+                            {% for value in item.values() %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+				</tbody>
+			</table>
+		</div>
+	{% endblock %}
+{% endblock %}

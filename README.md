@@ -71,6 +71,9 @@ flask run
 ## List of cool technologies in use here
 
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [Flask-Bootstrap](https://pythonhosted.org/Flask-Bootstrap/)
+- [FLask-Caching](https://flask-caching.readthedocs.io/en/latest/index.html)
+- [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/)
 - [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/index.html)
 - [SQLAlchemy](https://www.sqlalchemy.org/)
 
