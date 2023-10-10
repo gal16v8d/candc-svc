@@ -1,0 +1,5 @@
+Allows to check app status
+---
+responses:
+  200:
+    description: App is Up

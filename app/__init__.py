@@ -6,6 +6,7 @@ from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
+from flasgger import Swagger, LazyJSONEncoder
 
 from app.configs.cache_cfg import CacheConfig
 from app.configs.database_cfg import DevConfig
@@ -38,6 +39,13 @@ def create_app() -> Flask:
         default_limits=["30/minute"],
         storage_uri="memory://",
     )
+    Swagger(app, template=dict(
+        info={
+            'title': 'C&C Api',
+            'version': '1.0.0',
+            'description': 'C&C Wiki using Flask'
+        }
+    ))
 
     app.register_error_handler(HTTPException, http_exc_handler)
     app.register_error_handler(Exception, base_exc_handler)

@@ -1,0 +1,5 @@
+Allows to clear the cache
+---
+responses:
+  204:
+    description: Cache cleared

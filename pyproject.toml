@@ -15,6 +15,7 @@ flask-migrate = "^4.0.5"
 flask-bootstrap = "^3.3.7.1"
 flask-caching = "^2.0.2"
 flask-limiter = "^3.5.0"
+flasgger = "^0.9.7.1"
 
 
 [build-system]
