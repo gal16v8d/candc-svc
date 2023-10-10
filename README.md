@@ -68,6 +68,10 @@ flask db upgrade
 flask run
 ```
 
+# swagger docs (flasgger)
+
+http://{host}:{port}/apidocs
+
 ## List of cool technologies in use here
 
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
