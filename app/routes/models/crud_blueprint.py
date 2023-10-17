@@ -4,6 +4,7 @@ from typing import Any, List
 from flask import Blueprint, Response, abort, jsonify, make_response, render_template, request
 from flask_caching import Cache
 from app.models.database import get_all, get_by_id, save, update, delete
+from app.service.cache_service import CacheService
 
 
 def create_crud_blueprint(model: Any, cache: Cache):
@@ -11,8 +12,9 @@ def create_crud_blueprint(model: Any, cache: Cache):
     name = model.__name__
     data_not_found = f'{name} not found'
     data_should_be_json = f'{name} data should be json'
-    crud_bp = Blueprint(name.lower(), __name__)
     path_name = 'infantry' if name == 'Infantry' else f'{name.lower()}s'
+    crud_bp = Blueprint(name.lower(), __name__)
+    cache_service = CacheService(cache)
 
     def get_cache_key(item_id=None) -> str:
         '''get cache key for the model'''
@@ -20,31 +22,19 @@ def create_crud_blueprint(model: Any, cache: Cache):
 
     def fetch_all_data() -> List[Any]:
         '''
-        Attempts to lookup in the cache, 
-        if not found go to db and put in cache
+        Fetch all data from db and transform in dict
         '''
-        cache_key = get_cache_key()
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            return cached_data
         db_items = get_all(model)
-        items = [i.to_dict() for i in db_items]
-        cache.set(cache_key, items)
-        return items
+        return [i.to_dict() for i in db_items]
 
     def fetch_one_data(item_id: int) -> Any:
-        cache_key = get_cache_key(item_id)
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            return cached_data
-        item = get_by_id(model, item_id)
-        cache.set(cache_key, item)
-        return item
+        return get_by_id(model, item_id)
 
     @crud_bp.route(f'/{path_name}', methods=['GET'])
     def get_all_items() -> Response:
         '''Get all items in db'''
-        items = fetch_all_data()
+        items = cache_service.fetch_from_cache_or_else(
+            get_cache_key(), fetch_all_data)
         return jsonify(items)
 
     @crud_bp.route(f'/{path_name}/view', methods=['GET'])
@@ -56,7 +46,8 @@ def create_crud_blueprint(model: Any, cache: Cache):
     @crud_bp.route(f'/{path_name}/<int:item_id>', methods=['GET'])
     def get_item_by_id(item_id: int) -> Response:
         '''Get a single item by id'''
-        item = fetch_one_data(item_id)
+        item = cache_service.fetch_from_cache_or_else(
+            get_cache_key(item_id), fetch_one_data, item_id=item_id)
         if item:
             return jsonify(item.to_dict())
         abort(HTTPStatus.NOT_FOUND.value, data_not_found)
@@ -67,7 +58,7 @@ def create_crud_blueprint(model: Any, cache: Cache):
         payload = request.get_json()
         if payload:
             result = save(model, payload)
-            cache.delete(get_cache_key())
+            cache_service.clear_cache_by_name(get_cache_key())
             return make_response(jsonify(result.to_dict()), HTTPStatus.CREATED.value)
         abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
 
@@ -79,8 +70,7 @@ def create_crud_blueprint(model: Any, cache: Cache):
             item = get_by_id(model, item_id)
             if item:
                 result = update(item, payload)
-                cache.delete(get_cache_key())
-                cache.delete(get_cache_key(item_id))
+                cache_service.clear_cache_by_name(get_cache_key())
                 return jsonify(result.to_dict())
             abort(HTTPStatus.NOT_FOUND.value, data_not_found)
         abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
@@ -91,8 +81,7 @@ def create_crud_blueprint(model: Any, cache: Cache):
         item = get_by_id(model, item_id)
         if item:
             delete(item)
-            cache.delete(get_cache_key())
-            cache.delete(get_cache_key(item_id))
+            cache_service.clear_cache_by_name(get_cache_key())
             return make_response('', HTTPStatus.NO_CONTENT.value)
         abort(HTTPStatus.NOT_FOUND.value, data_not_found)
 

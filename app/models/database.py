@@ -12,10 +12,10 @@ def get_all(model) -> List[Any]:
     return session.query(model).filter_by(active=True).all()
 
 
-def get_by_id(model, id) -> Any:
+def get_by_id(model, data_id) -> Any:
     '''Fetch data by id'''
     session = db.session()
-    data = session.query(model).get(id)
+    data = session.query(model).get(data_id)
     if data and data.active is True:
         return data
 
