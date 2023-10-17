@@ -62,6 +62,19 @@ class MoneySpendService:
         '''
         return data.custom_cost if data.custom_cost is not None else data.base_cost
 
+    @staticmethod
+    def filter_by_build_limit(all_opt: List[Any], result_list: List[str]) -> List[Any]:
+        '''
+        Attempt to exclude from options list any unit which has
+        build limit restriction and has been selected.
+        '''
+        filtered_list = []
+        for opt in all_opt:
+            if opt.build_limit is False or \
+                (opt.build_limit is True and opt.name not in result_list):
+                filtered_list.append(opt)
+        return filtered_list
+
     def spend_money_by_type(self, model_type: str, faction_id: int,
                             money_to_spend: int) -> Dict[str, Any]:
         '''
@@ -71,7 +84,8 @@ class MoneySpendService:
             data_options = self.fetch_cached_data_or_else(model_type, faction_id,
                                                           switch_model_dict[model_type])
             return self.spend_money(data_options, money_to_spend)
-        raise BadModelException(f'Model should be one of: {switch_model_dict.keys()}')
+        model_values = ', '.join(switch_model_dict.keys())
+        raise BadModelException(f'Model should be one of: {model_values}')
 
     def fetch_cached_data_or_else(self, model_type: str, faction_id: int,
                                   data_dict: Dict[str, any]) -> Any:
@@ -88,7 +102,7 @@ class MoneySpendService:
         return self.cache_service.fetch_from_cache_or_else(
             cache_key, self.get_data_by_faction_db, faction_id=faction_id, data_dict=data_dict)
 
-    def spend_money(self, data_options: List, money_to_spend: int) -> Dict[str, Any]:
+    def spend_money(self, data_options: List[Any], money_to_spend: int) -> Dict[str, Any]:
         '''
         Retrieves random plane units to build depending on cash.
         '''
@@ -98,7 +112,9 @@ class MoneySpendService:
             lowest_cost: int = min(cost_list)
             while money_to_spend > 0 and money_to_spend >= lowest_cost:
                 log.debug('Money to spend %s', money_to_spend)
-                filtered_options  = [data for data in data_options
+                filtered_options = MoneySpendService.filter_by_build_limit(data_options,
+                                                                           result_list)
+                filtered_options  = [data for data in filtered_options
                                      if MoneySpendService.retrieve_cost(data) <= money_to_spend]
                 selected_data = random.choice(filtered_options)
                 result_list.append(selected_data.name)
@@ -115,9 +131,9 @@ class MoneySpendService:
         first_model = data_dict['model_1']
         second_model = data_dict['model_2']
         from_clause = join(first_model, second_model,
-                           data_dict['on_clause'])
+                           data_dict['on_clause'], True)
         query_to_run = select(first_model.name, first_model.base_cost,
-                              second_model.custom_cost)\
+                              first_model.build_limit, second_model.custom_cost)\
                                 .select_from(from_clause)\
                                     .where(first_model.active == True,
                                            second_model.active == True,
