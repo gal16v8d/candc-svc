@@ -1,15 +1,16 @@
 '''All db models definition'''
+from typing import Dict
 from sqlalchemy import Column, UniqueConstraint, inspect
 from app.models.database import db
 
 
 class BaseSqlModelMixin:
     '''Add util method for all the models'''
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         '''Transform sql model to dict'''
         return { c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<{type(self).__name__} {self.name}>'
 
 

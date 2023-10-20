@@ -1,27 +1,35 @@
 '''Caching service for app'''
+import logging
 from typing import Any, Callable, List
-from flask_caching import Cache
+from app.configs.log_cfg import LOG_NAME
+from app.core.app_cache import cache
+
+
+log = logging.getLogger(LOG_NAME)
 
 
 class CacheService:
     ''' Allow to manage data in cache'''
 
-    def __init__(self, cache: Cache) -> None:
+    def __init__(self) -> None:
         self.cache = cache
 
+    # pylint: disable=W0212
     def get_cache_keys(self) -> List[str]:
         '''
         List all the keys present in cache
         '''
-        return [key for key in self.cache.cache._cache.keys()]
+        return list(self.cache.cache._cache.keys())
 
     def clear_cache_by_name(self, name: str) -> None:
         '''
         Delete all the elements in cache which starts with name
         '''
         all_keys = self.get_cache_keys()
-        matched_key = [key for key in all_keys if key.startswith(name)]
-        for key in matched_key:
+        print(all_keys)
+        matched_keys = [key for key in all_keys if key.startswith(name)]
+        for key in matched_keys:
+            log.debug('About to remove %s key from cache', key)
             self.cache.delete(key)
 
     def clear_cache(self) -> None:
@@ -50,7 +58,10 @@ class CacheService:
         '''
         cached_data = self.cache.get(cache_key)
         if cached_data:
+            log.info('Returning data from cache for key: %s', cache_key)
             return cached_data
+        log.info('No data found in cache for key: %s', cache_key)
         db_data = fun(**kwargs)
+        log.info('About to set data in cache for key: %s', cache_key)
         self.cache.set(cache_key, db_data)
         return db_data

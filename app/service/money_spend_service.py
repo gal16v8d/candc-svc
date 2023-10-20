@@ -3,7 +3,6 @@ import logging
 import random
 from collections import Counter
 from typing import Any, Dict, List
-from flask_caching import Cache
 from sqlalchemy import select, join
 from app.configs.log_cfg import LOG_NAME
 from app.error.bad_model_exc import BadModelException
@@ -48,8 +47,8 @@ class MoneySpendService:
     Service to calculate units to build given army (faction_id) and money amount
     '''
 
-    def __init__(self, cache: Cache) -> None:
-        self.cache_service = CacheService(cache)
+    def __init__(self) -> None:
+        self.cache_service = CacheService()
 
     @staticmethod
     def retrieve_cost(data: Any) -> int:

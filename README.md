@@ -68,6 +68,12 @@ flask db upgrade
 flask run
 ```
 
+# test
+
+```bash
+pytest --cov
+```
+
 # swagger docs (flasgger)
 
 http://{host}:{port}/apidocs

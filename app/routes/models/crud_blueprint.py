@@ -2,19 +2,18 @@
 from http import HTTPStatus
 from typing import Any, List
 from flask import Blueprint, Response, abort, jsonify, make_response, render_template, request
-from flask_caching import Cache
 from app.models.database import get_all, get_by_id, save, update, delete
 from app.service.cache_service import CacheService
 
 
-def create_crud_blueprint(model: Any, cache: Cache):
+def create_crud_blueprint(model: Any):
     '''Generic blueprint to perform CRUD operations'''
     name = model.__name__
     data_not_found = f'{name} not found'
     data_should_be_json = f'{name} data should be json'
     path_name = 'infantry' if name == 'Infantry' else f'{name.lower()}s'
     crud_bp = Blueprint(name.lower(), __name__)
-    cache_service = CacheService(cache)
+    cache_service = CacheService()
 
     def get_cache_key(item_id=None) -> str:
         '''get cache key for the model'''
