@@ -40,6 +40,12 @@ Install any dependency you need:
 poetry add lib_here
 ```
 
+Remove a dependency you don't need:
+
+```bash
+poetry remove lib_here
+```
+
 # Set up
 
 # sqlalchemy
