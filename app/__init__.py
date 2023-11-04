@@ -1,4 +1,5 @@
 '''Factory pattern to create flask app'''
+import logging
 from werkzeug.exceptions import HTTPException
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -6,9 +7,10 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flasgger import Swagger
+from sqlalchemy import event
 from app.configs.cache_cfg import CacheConfig
 from app.configs.database_cfg import DevConfig
-from app.configs.log_cfg import log
+from app.configs.log_cfg import log, LOG_NAME
 from app.core.app_cache import cache
 from app.error.handler import base_exc_handler, http_exc_handler
 from app.models.database import db
@@ -21,6 +23,7 @@ from app.routes.models import create_crud_blueprint, money_bp
 BASE_PATH = '/api'
 bootstrap = Bootstrap()
 migrate = Migrate()
+log = logging.getLogger(LOG_NAME)
 
 
 def create_app(db_config = DevConfig) -> Flask:
@@ -71,5 +74,11 @@ def create_app(db_config = DevConfig) -> Flask:
 
     for url, blueprint in routes:
         app.register_blueprint(blueprint, url_prefix=url)
+
+    with app.app_context():
+        @event.listens_for(db.engine, "before_cursor_execute")
+        def log_query(conn, cursor, statement, parameters, context, executemany):
+            log.info("SQL Query: \n%s", statement)
+            log.info("SQL Args: \n%s", parameters)
 
     return app
