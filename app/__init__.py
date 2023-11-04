@@ -1,7 +1,6 @@
 '''Factory pattern to create flask app'''
 from werkzeug.exceptions import HTTPException
 from flask import Flask
-# TODO check bootstrap-flask lib to replace the one below
 from flask_bootstrap import Bootstrap
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
