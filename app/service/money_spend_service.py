@@ -137,5 +137,4 @@ class MoneySpendService:
                                     .where(first_model.active == True,
                                            second_model.active == True,
                                            second_model.faction_id == faction_id)
-        log.info('SQL -> %s', str(query_to_run))
         return db.session.execute(query_to_run).fetchall()
