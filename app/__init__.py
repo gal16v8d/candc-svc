@@ -7,15 +7,17 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flasgger import Swagger
+from pydantic import ValidationError
 from sqlalchemy import event
 from app.configs.cache_cfg import CacheConfig
 from app.configs.database_cfg import DevConfig
 from app.configs.log_cfg import log, LOG_NAME
 from app.core.app_cache import cache
-from app.error.handler import base_exc_handler, http_exc_handler
+import app.error.handler as handler
 from app.models.database import db
 # this import should be in place, to let migrate command find the tables
 import app.models.models as models
+import app.models.schemas as schemas
 from app.routes import cache_bp, create_health_bp
 from app.routes.models import create_crud_blueprint, money_bp
 
@@ -52,24 +54,27 @@ def create_app(db_config = DevConfig) -> Flask:
     # Integrate the logger with the Flask app
     app.logger.addHandler(log.handlers[0])
 
-    app.register_error_handler(HTTPException, http_exc_handler)
-    app.register_error_handler(Exception, base_exc_handler)
+    app.register_error_handler(HTTPException, handler.http_exc_handler)
+    app.register_error_handler(ValidationError, handler.val_exc_handler)
+    app.register_error_handler(Exception, handler.base_exc_handler)
 
     routes = [('/', create_health_bp(limiter)),
               (BASE_PATH, cache_bp),
               (BASE_PATH, money_bp),
-              (BASE_PATH, create_crud_blueprint(models.Game)),
-              (BASE_PATH, create_crud_blueprint(models.Faction)),
-              (BASE_PATH, create_crud_blueprint(models.Structure)),
-              (BASE_PATH, create_crud_blueprint(models.StructureXFaction)),
-              (BASE_PATH, create_crud_blueprint(models.Infantry)),
-              (BASE_PATH, create_crud_blueprint(models.InfantryXFaction)),
-              (BASE_PATH, create_crud_blueprint(models.Tank)),
-              (BASE_PATH, create_crud_blueprint(models.TankXFaction)),
-              (BASE_PATH, create_crud_blueprint(models.Boat)),
-              (BASE_PATH, create_crud_blueprint(models.BoatXFaction)),
-              (BASE_PATH, create_crud_blueprint(models.Plane)),
-              (BASE_PATH, create_crud_blueprint(models.PlaneXFaction))
+              (BASE_PATH, create_crud_blueprint(models.Boat, schemas.BoatBase)),
+              (BASE_PATH, create_crud_blueprint(models.BoatXFaction, schemas.BoatXFactionBase)),
+              (BASE_PATH, create_crud_blueprint(models.Faction, schemas.FactionBase)),
+              (BASE_PATH, create_crud_blueprint(models.Game, schemas.GameBase)),
+              (BASE_PATH, create_crud_blueprint(models.Infantry, schemas.InfantryBase)),
+              (BASE_PATH, create_crud_blueprint(models.InfantryXFaction,
+                                                schemas.InfantryXFactionBase)),
+              (BASE_PATH, create_crud_blueprint(models.Plane, schemas.PlaneBase)),
+              (BASE_PATH, create_crud_blueprint(models.PlaneXFaction, schemas.PlaneXFactionBase)),
+              (BASE_PATH, create_crud_blueprint(models.Structure, schemas.StructureBase)),
+              (BASE_PATH, create_crud_blueprint(models.StructureXFaction,
+                                                schemas.StructureXFactionBase)),
+              (BASE_PATH, create_crud_blueprint(models.Tank, schemas.TankBase)),
+              (BASE_PATH, create_crud_blueprint(models.TankXFaction, schemas.TankXFactionBase))
               ]
 
     for url, blueprint in routes:

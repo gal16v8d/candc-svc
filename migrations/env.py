@@ -2,7 +2,8 @@ import logging
 from logging.config import fileConfig
 
 from flask import current_app
-
+# manually added
+from sqlmodel import SQLModel
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -99,7 +100,9 @@ def run_migrations_online():
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=get_metadata(),
+            # target_metadata=get_metadata(),
+            # manually added
+            target_metadata=SQLModel.metadata,
             **conf_args
         )
 

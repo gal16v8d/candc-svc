@@ -2,6 +2,7 @@
 from http import HTTPStatus
 import logging
 from flask import jsonify, request, Response
+from pydantic import ValidationError
 from werkzeug.exceptions import HTTPException
 from app.configs.log_cfg import LOG_NAME
 from app.error.bad_model_exc import BadModelException
@@ -15,6 +16,14 @@ def http_exc_handler(exc: HTTPException) -> Response:
     log.warning('HTTPException -> %s', str(exc), exc_info=exc)
     response = jsonify(path=request.path, message=exc.description)
     response.status_code = exc.code
+    return response
+
+
+def val_exc_handler(exc: ValidationError) -> Response:
+    '''Maps validationerror in a json structured response'''
+    log.warning('ValidationError -> %s', str(exc), exc_info=exc)
+    response = jsonify(path=request.path, message=exc.errors())
+    response.status_code = HTTPStatus.BAD_REQUEST
     return response
 
 
