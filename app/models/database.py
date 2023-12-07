@@ -1,7 +1,7 @@
 '''db and crud module'''
 from typing import Any, Dict, List
 from flask_sqlalchemy import SQLAlchemy
-
+from app.error.bad_arg_exc import BadArgException
 
 db = SQLAlchemy()
 
@@ -27,6 +27,8 @@ def get_by_query_args(model, data: Dict) -> Any:
     for key, value in data.items():
         if hasattr(model, key):
             query = query.filter(getattr(model, key) == value)
+        else:
+            raise BadArgException(f"Attribute '{key}' is not part of '{model.__tablename__}' info")
     return query.all()
 
 
@@ -46,6 +48,8 @@ def patch(model, data: Dict) -> Any:
     for key, value in data.items():
         if hasattr(model, key):
             setattr(model, key, value)
+        else:
+            raise BadArgException(f"Attribute '{key}' is not part of '{model.__tablename__}' info")
     session.commit()
     session.refresh(model)
     return model

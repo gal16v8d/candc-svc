@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from flasgger import Swagger
 from pydantic import ValidationError
 from sqlalchemy import event
+from sqlalchemy.exc import IntegrityError
 from app.configs.cache_cfg import CacheConfig
 from app.configs.database_cfg import DevConfig
 from app.configs.log_cfg import log, LOG_NAME
@@ -56,6 +57,7 @@ def create_app(db_config = DevConfig) -> Flask:
 
     app.register_error_handler(HTTPException, handler.http_exc_handler)
     app.register_error_handler(ValidationError, handler.val_exc_handler)
+    app.register_error_handler(IntegrityError, handler.sqlalchemy_exc_handler)
     app.register_error_handler(Exception, handler.base_exc_handler)
 
     routes = [('/', create_health_bp(limiter)),
