@@ -1,12 +1,12 @@
 '''Generic blueprint CRUD'''
 from http import HTTPStatus
 from typing import Any, List
-from flask import Blueprint, Response, abort, jsonify, make_response, render_template, request
-from app.models.database import get_all, get_by_id, save, update, delete
+from flask import Blueprint, Response, abort, make_response, render_template, request
+from app.models.database import get_all, get_by_id, get_by_query_args, delete, patch, save
 from app.service.cache_service import CacheService
 
 
-def create_crud_blueprint(model: Any, schema: Any):
+def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
     '''Generic blueprint to perform CRUD operations'''
     name = model.__name__
     data_not_found = f'{name} not found'
@@ -23,24 +23,36 @@ def create_crud_blueprint(model: Any, schema: Any):
         '''
         Fetch all data from db and transform in dict
         '''
-        db_items = get_all(model)
-        return [i.to_dict() for i in db_items]
+        return get_all(model)
 
     def fetch_one_data(item_id: int) -> Any:
         return get_by_id(model, item_id)
 
+    def map_item_to_json(item: Any) -> Response:
+        '''Map a single item into json schema'''
+        return schema(**item.to_dict()).json(exclude_none=True)
+
     @crud_bp.route(f'/{path_name}', methods=['GET'])
     def get_all_items() -> Response:
         '''Get all items in db'''
-        items = cache_service.fetch_from_cache_or_else(
-            get_cache_key(), fetch_all_data)
-        return jsonify(items)
+        if len(request.args) > 0:
+            query_params = request.args.to_dict()
+            items = get_by_query_args(model, query_params)
+        else:
+            items = cache_service.fetch_from_cache_or_else(
+                get_cache_key(), fetch_all_data)
+        return schema_list(__root__=items).json(exclude_none=True)
 
     @crud_bp.route(f'/{path_name}/view', methods=['GET'])
     def get_all_items_view() -> Response:
         '''Get all items in db on templated view'''
-        items = fetch_all_data()
-        return render_template('table.html', data=items)
+        if len(request.args) > 0:
+            query_params = request.args.to_dict()
+            items = get_by_query_args(model, query_params)
+        else:
+            items = fetch_all_data()
+        items_schema = [schema(**i.to_dict()).dict() for i in items]
+        return render_template('table.html', data=items_schema)
 
     @crud_bp.route(f'/{path_name}/<int:item_id>', methods=['GET'])
     def get_item_by_id(item_id: int) -> Response:
@@ -48,7 +60,7 @@ def create_crud_blueprint(model: Any, schema: Any):
         item = cache_service.fetch_from_cache_or_else(
             get_cache_key(item_id), fetch_one_data, item_id=item_id)
         if item:
-            return jsonify(item.to_dict())
+            return map_item_to_json(item)
         abort(HTTPStatus.NOT_FOUND.value, data_not_found)
 
     @crud_bp.route(f'/{path_name}', methods=['POST'])
@@ -59,7 +71,8 @@ def create_crud_blueprint(model: Any, schema: Any):
             model_schema = schema(**payload)
             result = save(model, model_schema.dict())
             cache_service.clear_cache_by_name(get_cache_key())
-            return make_response(jsonify(result.to_dict()), HTTPStatus.CREATED.value)
+            data = map_item_to_json(result)
+            return make_response(data, HTTPStatus.CREATED.value)
         abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
 
     @crud_bp.route(f'/{path_name}/<int:item_id>', methods=['PATCH'])
@@ -69,9 +82,9 @@ def create_crud_blueprint(model: Any, schema: Any):
         if payload:
             item = get_by_id(model, item_id)
             if item:
-                result = update(item, payload)
+                result = patch(item, payload)
                 cache_service.clear_cache_by_name(get_cache_key())
-                return schema(**result.to_dict()).json(exclude_none=True)
+                return map_item_to_json(result)
             abort(HTTPStatus.NOT_FOUND.value, data_not_found)
         abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
 
