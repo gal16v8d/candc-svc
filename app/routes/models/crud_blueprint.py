@@ -1,7 +1,8 @@
 '''Generic blueprint CRUD'''
 from http import HTTPStatus
 from typing import Any, List
-from flask import Blueprint, Response, abort, make_response, render_template, request
+from flask import Blueprint, Response, make_response, render_template, request
+from app.error.custom_exc import BadBodyException, NotFoundException
 from app.models.database import get_all, get_by_id, get_by_query_args, delete, patch, save
 from app.service.cache_service import CacheService
 
@@ -9,8 +10,6 @@ from app.service.cache_service import CacheService
 def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
     '''Generic blueprint to perform CRUD operations'''
     name = model.__name__
-    data_not_found = f'{name} not found'
-    data_should_be_json = f'{name} data should be json'
     path_name = 'infantry' if name == 'Infantry' else f'{name.lower()}s'
     crud_bp = Blueprint(name.lower(), __name__)
     cache_service = CacheService()
@@ -41,7 +40,9 @@ def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
         else:
             items = cache_service.fetch_from_cache_or_else(
                 get_cache_key(), fetch_all_data)
-        return schema_list(__root__=items).json(exclude_none=True)
+        if len(items) > 0:
+            return schema_list(__root__=items).json(exclude_none=True)
+        raise NotFoundException(name)
 
     @crud_bp.route(f'/{path_name}/view', methods=['GET'])
     def get_all_items_view() -> Response:
@@ -61,7 +62,7 @@ def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
             get_cache_key(item_id), fetch_one_data, item_id=item_id)
         if item:
             return map_item_to_json(item)
-        abort(HTTPStatus.NOT_FOUND.value, data_not_found)
+        raise NotFoundException(name)
 
     @crud_bp.route(f'/{path_name}', methods=['POST'])
     def create_item() -> Response:
@@ -73,7 +74,7 @@ def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
             cache_service.clear_cache_by_name(get_cache_key())
             data = map_item_to_json(result)
             return make_response(data, HTTPStatus.CREATED.value)
-        abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
+        raise BadBodyException(name)
 
     @crud_bp.route(f'/{path_name}/<int:item_id>', methods=['PATCH'])
     def patch_item(item_id: int) -> Response:
@@ -85,8 +86,8 @@ def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
                 result = patch(item, payload)
                 cache_service.clear_cache_by_name(get_cache_key())
                 return map_item_to_json(result)
-            abort(HTTPStatus.NOT_FOUND.value, data_not_found)
-        abort(HTTPStatus.BAD_REQUEST.value, data_should_be_json)
+            raise NotFoundException(name)
+        raise BadBodyException(name)
 
     @crud_bp.route(f'/{path_name}/<int:item_id>', methods=['DELETE'])
     def delete_item(item_id: int) -> Response:
@@ -96,6 +97,6 @@ def create_crud_blueprint(model: Any, schema: Any, schema_list: Any = None):
             delete(item)
             cache_service.clear_cache_by_name(get_cache_key())
             return make_response('', HTTPStatus.NO_CONTENT.value)
-        abort(HTTPStatus.NOT_FOUND.value, data_not_found)
+        raise NotFoundException(name)
 
     return crud_bp

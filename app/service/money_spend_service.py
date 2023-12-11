@@ -5,7 +5,7 @@ from collections import Counter
 from typing import Any, Dict, List
 from sqlalchemy import select, join
 from app.configs.log_cfg import LOG_NAME
-from app.error.bad_model_exc import BadModelException
+from app.error.custom_exc import BadModelException
 from app.models.database import db
 from app.models.models import (
     Boat, BoatXFaction,
@@ -14,6 +14,7 @@ from app.models.models import (
     Structure, StructureXFaction,
     Tank, TankXFaction
 )
+from app.models.schemas import MoneySpend
 from app.service.cache_service import CacheService
 
 
@@ -120,7 +121,7 @@ class MoneySpendService:
                 money_to_spend -= MoneySpendService.retrieve_cost(selected_data)
         val_count = Counter(result_list)
         result_dict = dict(val_count)
-        return {'units': result_dict, 'available_cash': money_to_spend}
+        return MoneySpend(units=result_dict, available_cash=money_to_spend).dict()
 
     # pylint: disable=C0121
     def get_data_by_faction_db(self, faction_id: int, data_dict: Dict[str, Any]):

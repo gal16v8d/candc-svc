@@ -201,3 +201,9 @@ class TankList(BaseModel):
 class TankXFactionList(BaseModel):
     '''Help to serialize a list of tankxfactions'''
     __root__: List[TankXFactionBase]
+
+
+#Custom models
+class MoneySpend(BaseModel):
+    available_cash: int
+    units: Dict[str, int]

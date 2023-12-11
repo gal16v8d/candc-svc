@@ -1,7 +1,8 @@
 '''db and crud module'''
 from typing import Any, Dict, List
 from flask_sqlalchemy import SQLAlchemy
-from app.error.bad_arg_exc import BadArgException
+from app.error.custom_exc import BadArgException
+
 
 db = SQLAlchemy()
 
