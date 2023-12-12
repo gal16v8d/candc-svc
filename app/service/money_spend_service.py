@@ -135,7 +135,7 @@ class MoneySpendService:
         query_to_run = select(first_model.name, first_model.base_cost,
                               first_model.build_limit, second_model.custom_cost)\
                                 .select_from(from_clause)\
-                                    .where(first_model.active == True,
-                                           second_model.active == True,
+                                    .where(first_model.active.is_(True),
+                                           second_model.active.is_(True),
                                            second_model.faction_id == faction_id)
         return db.session.execute(query_to_run).fetchall()

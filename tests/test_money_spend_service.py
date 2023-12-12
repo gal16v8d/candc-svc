@@ -2,7 +2,7 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from typing import NamedTuple, Optional
-from app.error.bad_model_exc import BadModelException
+from app.error.custom_exc import BadModelException
 from app.models.models import Boat, BoatXFaction
 from app.service.money_spend_service import MoneySpendService
 
