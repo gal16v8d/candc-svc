@@ -15,6 +15,7 @@ class DevConfig(DbConfig):
     env_file = find_dotenv('.env')
     config = dotenv_values(env_file)
     SQLALCHEMY_DATABASE_URI = config['CANDC_DB_URL']
+    # close idle connections after POOL_RECYCLE seconds
     SQLALCHEMY_POOL_RECYCLE = config['POOL_RECYCLE']
     SQLALCHEMY_POOL_SIZE = config['POOL_SIZE']
 
