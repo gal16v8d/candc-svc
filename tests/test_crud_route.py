@@ -93,6 +93,26 @@ def test_patch_item_not_valid(app: Flask) -> None:
     assert data['path'] is not None
 
 
+def test_patch_item_not_updatable_created(app: Flask) -> None:
+    '''Test case for patch empty payload'''
+    client = app.test_client()
+    response = client.patch('/api/boats/1', json={'created_at': '2023-11-03T22:48:48.938506'})
+    assert response.status_code == HTTPStatus.BAD_REQUEST.value
+    data = json.loads(response.data.decode('utf-8'))
+    assert data['message'] is not None
+    assert data['path'] is not None
+
+
+def test_patch_item_not_updatable_updated(app: Flask) -> None:
+    '''Test case for patch empty payload'''
+    client = app.test_client()
+    response = client.patch('/api/boats/1', json={'updated_at': '2023-11-03T22:48:48.938506'})
+    assert response.status_code == HTTPStatus.BAD_REQUEST.value
+    data = json.loads(response.data.decode('utf-8'))
+    assert data['message'] is not None
+    assert data['path'] is not None
+
+
 def test_patch_item_not_found(app: Flask) -> None:
     '''Test case for patch not found'''
     client = app.test_client()

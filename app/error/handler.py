@@ -12,7 +12,8 @@ import app.error.custom_exc as custom_exc
 log = logging.getLogger(LOG_NAME)
 BAD_REQUEST_CLASSES = [custom_exc.BadArgException,
                        custom_exc.BadBodyException,
-                       custom_exc.BadModelException]
+                       custom_exc.BadModelException,
+                       custom_exc.UnpatchableFieldException]
 
 
 def http_exc_handler(exc: HTTPException) -> Response:

@@ -26,3 +26,12 @@ class NotFoundException(Exception):
     '''This exception is raised if no data is found in db'''
     def __init__(self, name: str) -> None:
         super().__init__(f'{name} not found')
+
+
+class UnpatchableFieldException(Exception):
+    '''
+    This exception is raised if you attempt to
+    update a field that is marked as ignorable/unpatchable.
+    '''
+    def __init__(self, field_name: str) -> None:
+        super().__init__(f'{field_name} can not be updated')

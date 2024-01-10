@@ -1,19 +1,20 @@
 '''db and crud module'''
 from typing import Any, Dict, List
 from flask_sqlalchemy import SQLAlchemy
-from app.error.custom_exc import BadArgException
+from app.error.custom_exc import BadArgException, UnpatchableFieldException
 
 
+NON_UPDATABLE_FIELDS = ['created_at', 'updated_at']
 db = SQLAlchemy()
 
 
-def get_all(model) -> List[Any]:
+def get_all(model: Any) -> List[Any]:
     '''Fetch all active data'''
     session = db.session()
     return session.query(model).filter_by(active=True).all()
 
 
-def get_by_id(model, data_id: Any) -> Any:
+def get_by_id(model: Any, data_id: Any) -> Any:
     '''Fetch data by id'''
     session = db.session()
     data = session.query(model).get(data_id)
@@ -21,7 +22,7 @@ def get_by_id(model, data_id: Any) -> Any:
         return data
 
 
-def get_by_query_args(model, data: Dict) -> Any:
+def get_by_query_args(model: Any, data: Dict) -> Any:
     '''Allow to search given certain args in data dict'''
     session = db.session()
     query = session.query(model)
@@ -33,7 +34,7 @@ def get_by_query_args(model, data: Dict) -> Any:
     return query.all()
 
 
-def save(model, data) -> Any:
+def save(model: Any, data: Any) -> Any:
     '''Persist object in database'''
     session = db.session()
     obj = model(**data)
@@ -43,12 +44,14 @@ def save(model, data) -> Any:
     return obj
 
 
-def patch(model, data: Dict) -> Any:
+def patch(model: Any, data: Dict) -> Any:
     '''Update object in database'''
     session = db.session()
     for key, value in data.items():
-        if hasattr(model, key):
+        if hasattr(model, key) and key not in NON_UPDATABLE_FIELDS:
             setattr(model, key, value)
+        elif key in NON_UPDATABLE_FIELDS:
+            raise UnpatchableFieldException(key)
         else:
             raise BadArgException(f"Attribute '{key}' is not part of '{model.__tablename__}' info")
     session.commit()
@@ -56,7 +59,7 @@ def patch(model, data: Dict) -> Any:
     return model
 
 
-def delete(obj) -> None:
+def delete(obj: Any) -> None:
     '''Remove object from database'''
     session = db.session()
     session.delete(obj)
