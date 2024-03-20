@@ -1,11 +1,12 @@
 '''Test config module'''
 import pytest
+from app.configs.lazy_cfg_loader import LazyImporter
 
 
 @pytest.fixture
 def app():
     '''Init app fixture for route tests'''
-    from app import create_app
-    flask_app = create_app()
+    app_module = LazyImporter('app').get_module()
+    flask_app = app_module.create_app()
     with flask_app.app_context():
         yield flask_app

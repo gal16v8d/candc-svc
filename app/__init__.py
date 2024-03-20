@@ -1,7 +1,6 @@
 '''Factory pattern to create flask app'''
 import logging
 import os
-from typing import Union
 from werkzeug.exceptions import HTTPException
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -13,8 +12,9 @@ from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 from app.configs.cache_cfg import CacheConfig
-import app.configs.database_cfg as database_cfg
+from app.configs.lazy_cfg_loader import LazyImporter
 from app.configs.log_cfg import log, LOG_NAME
+import app.const as consts
 from app.core.app_cache import cache
 import app.error.handler as handler
 from app.models.database import db
@@ -34,12 +34,15 @@ log = logging.getLogger(LOG_NAME)
 def create_app() -> Flask:
     '''Create the flask app'''
     app = Flask(__name__)
-    if os.getenv('CANDC_ENV') == 'prod':
-        db_config = database_cfg.ProdConfig
-    elif os.getenv('CANDC_ENV') == 'dev':
-        db_config = database_cfg.DevConfig
+    if os.getenv(consts.envs.CANDC_ENV) == 'prod':
+        db_config = LazyImporter(consts.lazy_load.PROD_DB_MODULE)\
+            .get_config_class(consts.lazy_load.PROD_DB_CLASS)
+    elif os.getenv(consts.envs.CANDC_ENV) == 'dev':
+        db_config = LazyImporter(consts.lazy_load.DEV_DB_MODULE)\
+            .get_config_class(consts.lazy_load.DEV_DB_CLASS)
     else:
-        db_config = database_cfg.TestConfig
+        db_config = LazyImporter(consts.lazy_load.TEST_DB_MODULE)\
+            .get_config_class(consts.lazy_load.TEST_DB_CLASS)
     app.config.from_object(db_config)
     app.config.from_object(CacheConfig)
     db.init_app(app)

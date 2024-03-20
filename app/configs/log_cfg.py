@@ -1,6 +1,7 @@
 '''Logger config'''
 import logging
 import os
+import app.const as consts
 
 
 LOG_NAME = 'candc'
@@ -21,7 +22,7 @@ console_handler.setFormatter(formatter)
 log.addHandler(console_handler)
 
 # Create a file handler and set the log level
-if os.getenv('CANDC_ENV') != 'prod':
+if os.getenv(consts.envs.CANDC_ENV) != 'prod':
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(LOG_LEVEL)
     file_handler.setFormatter(formatter)
