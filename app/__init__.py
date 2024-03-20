@@ -1,5 +1,6 @@
 '''Factory pattern to create flask app'''
 import logging
+import os
 from werkzeug.exceptions import HTTPException
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -11,7 +12,7 @@ from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 from app.configs.cache_cfg import CacheConfig
-from app.configs.database_cfg import DevConfig
+from app.configs.database_cfg import DevConfig, ProdConfig
 from app.configs.log_cfg import log, LOG_NAME
 from app.core.app_cache import cache
 import app.error.handler as handler
@@ -32,6 +33,7 @@ log = logging.getLogger(LOG_NAME)
 def create_app(db_config = DevConfig) -> Flask:
     '''Create the flask app'''
     app = Flask(__name__)
+    db_config = ProdConfig if os.getenv('CANDC_ENV') == 'prod' else db_config
     app.config.from_object(db_config)
     app.config.from_object(CacheConfig)
     db.init_app(app)

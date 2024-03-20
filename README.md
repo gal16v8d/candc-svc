@@ -128,6 +128,10 @@ poetry env use $USER_HOME/.pyenv/versions/3.12.1/bin/python
 
 http://{host}:{port}/apidocs
 
+# Web deployment
+
+This app can be hosted in [Railway](https://railway.app), folder that helps with it is `.ci` folder.
+
 ## List of cool technologies in use here
 
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)

@@ -1,4 +1,5 @@
 '''Configs to properly connect with the database'''
+import os
 from dotenv import dotenv_values, find_dotenv
 from sqlalchemy.pool import QueuePool
 
@@ -20,10 +21,19 @@ class DevConfig(DbConfig):
     SQLALCHEMY_POOL_SIZE = config['POOL_SIZE']
 
 
+class ProdConfig(DbConfig):
+    '''Prod config inherits from DbConfig and use environment variables'''
+    SQLALCHEMY_DATABASE_URI = os.getenv('CANDC_DB_URL')
+    # close idle connections after POOL_RECYCLE seconds
+    SQLALCHEMY_POOL_RECYCLE = os.getenv('POOL_RECYCLE')
+    SQLALCHEMY_POOL_SIZE = os.getenv('POOL_SIZE')
+
+
 class TestConfig(DbConfig):
     '''Test config inherits from DbConfig and use .env.test file'''
     DEBUG = True
     TESTING = True
+    SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     env_file = find_dotenv('.env.test')
     config = dotenv_values(env_file)
