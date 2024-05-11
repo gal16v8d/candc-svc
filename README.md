@@ -124,6 +124,21 @@ poetry env use $USER_HOME/.pyenv/versions/3.12.1/bin/python
 ```
 - then install using commands like the ones in the previous section
 
+# Formatter
+
+Using `black` as code formatter
+Can be used this way:
+```bash
+poetry run black .
+```
+
+# Type checking
+Using `mypy` for type checking
+Can be used this way:
+```bash
+poetry run mypy app tests
+```
+
 # swagger docs (flasgger)
 
 http://{host}:{port}/apidocs

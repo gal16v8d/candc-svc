@@ -15,10 +15,15 @@ flask-migrate = "^4.0.5"
 flask-caching = "^2.0.2"
 flask-limiter = "^3.5.0"
 flasgger = "^0.9.7.1"
-pytest = "^7.4.2"
-pytest-cov = "^4.1.0"
 flask-bootstrap = "^3.3.7.1"
 sqlmodel = "^0.0.12"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+mypy = "^1.10.0"
+pylint = "^3.1.0"
+pytest = "^8.2.0"
+pytest-cov = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core"]

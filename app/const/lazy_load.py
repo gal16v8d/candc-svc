@@ -1,9 +1,13 @@
-'''Lazy load object data'''
-DB_MODULE = 'app.configs.db'
-DEV_DB_MODULE = DB_MODULE + '.dev_cfg'
-PROD_DB_MODULE = DB_MODULE + '.prod_cfg'
-TEST_DB_MODULE = DB_MODULE + '.test_cfg'
+"""Lazy load object data"""
 
-DEV_DB_CLASS = 'DevConfig'
-PROD_DB_CLASS = 'ProdConfig'
-TEST_DB_CLASS = 'TestConfig'
+from typing import Final
+
+
+DB_MODULE: Final = "app.configs.db"
+DEV_DB_MODULE: Final = DB_MODULE + ".dev_cfg"
+PROD_DB_MODULE: Final = DB_MODULE + ".prod_cfg"
+TEST_DB_MODULE: Final = DB_MODULE + ".test_cfg"
+
+DEV_DB_CLASS: Final = "DevConfig"
+PROD_DB_CLASS: Final = "ProdConfig"
+TEST_DB_CLASS: Final = "TestConfig"

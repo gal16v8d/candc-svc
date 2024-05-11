@@ -1,5 +1,9 @@
-'''Define common env vars across the files'''
-CANDC_DB_URL = 'CANDC_DB_URL'
-CANDC_ENV = 'CANDC_ENV'
-POOL_RECYCLE = 'POOL_RECYCLE'
-POOL_SIZE = 'POOL_SIZE'
+"""Define common env vars across the files"""
+
+from typing import Final
+
+
+CANDC_DB_URL: Final = "CANDC_DB_URL"
+CANDC_ENV: Final = "CANDC_ENV"
+POOL_RECYCLE: Final = "POOL_RECYCLE"
+POOL_SIZE: Final = "POOL_SIZE"
