@@ -1,7 +1,7 @@
 """Money route handler"""
 
 from http import HTTPStatus
-from flask import Blueprint, Response, abort, jsonify, request, typing
+from flask import Blueprint, abort, jsonify, request, typing
 from app.service.money_spend_service import MoneySpendService
 
 

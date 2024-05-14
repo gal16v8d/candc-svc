@@ -106,6 +106,18 @@ flask run
 pytest --cov
 ```
 
+# automation
+
+Run the server using the command on launch section
+Then open another console, activate the env and go to automation folder
+Once there run the tests using:
+
+```bash
+python automation.py
+```
+
+You can see the console output with several test cases names and status (PASSED/ FAILED)
+
 # Advanced use cases
 
 If multiple python versions are found in the operative system, then
