@@ -4,7 +4,7 @@ from http import HTTPStatus
 from typing import Any, Dict
 
 # pylint: disable=no-name-in-module
-from behave import given, when, then
+from behave import when, then
 from requests import Response
 
 # pylint: disable=import-error
