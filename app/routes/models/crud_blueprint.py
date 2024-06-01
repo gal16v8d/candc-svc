@@ -2,7 +2,7 @@
 
 from http import HTTPStatus
 from typing import Any, List, Type, Union
-from flask import Blueprint, make_response, render_template, request, typing
+from flask import Blueprint, make_response, jsonify, render_template, request, typing
 from pydantic import BaseModel
 from sqlmodel import SQLModel
 from app.error.custom_exc import BadBodyException, NotFoundException
@@ -43,7 +43,7 @@ def create_crud_blueprint(
 
     def map_item_to_json(item: Any) -> typing.ResponseReturnValue:
         """Map a single item into json schema"""
-        return schema(**item.to_dict()).json(exclude_none=True)
+        return schema(**item.to_dict()).dict(exclude_none=True)
 
     @crud_bp.route(f"/{path_name}", methods=["GET"])
     def get_all_items() -> typing.ResponseReturnValue:
@@ -56,7 +56,8 @@ def create_crud_blueprint(
                 get_cache_key(), fetch_all_data
             )
         if len(items) > 0 and schema_list is not None:
-            return schema_list(__root__=items).json(exclude_none=True)
+            result = schema_list(__root__=items).dict(exclude_none=True).get("__root__")
+            return jsonify(result)
         raise NotFoundException(name)
 
     @crud_bp.route(f"/{path_name}/view", methods=["GET"])
@@ -77,7 +78,7 @@ def create_crud_blueprint(
             get_cache_key(item_id), fetch_one_data, item_id=item_id
         )
         if item:
-            return map_item_to_json(item)
+            return jsonify(map_item_to_json(item))
         raise NotFoundException(name)
 
     @crud_bp.route(f"/{path_name}", methods=["POST"])
@@ -101,7 +102,7 @@ def create_crud_blueprint(
             if item:
                 result = patch(item, payload)
                 cache_service.clear_cache_by_name(get_cache_key())
-                return map_item_to_json(result)
+                return jsonify(map_item_to_json(result))
             raise NotFoundException(name)
         raise BadBodyException(name)
 
