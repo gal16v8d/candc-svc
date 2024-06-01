@@ -1,22 +1,30 @@
 """Common rest api assertions"""
 
-from http import HTTPStatus
-from typing import Any, Dict, Final
+from typing import Any, Dict
 import requests
-
-
-FAILED: Final = "FAILED"
-PASSED: Final = "PASSED"
 
 
 class RestAssertions:
     """Assertions to implement in the rest calls"""
 
     @staticmethod
-    def assert_status(response: requests.Response, expected_status: HTTPStatus) -> None:
+    def assert_not_error(response: Any) -> None:
+        """Check no error during rest call"""
+        if isinstance(
+            response,
+            (
+                requests.exceptions.RequestException,
+                requests.exceptions.HTTPError,
+                requests.exceptions.ConnectionError,
+            ),
+        ):
+            assert False, f"A request exception occurs {str(response)}"
+
+    @staticmethod
+    def assert_status(response: requests.Response, expected_status: int) -> None:
         """Assert status code from response"""
         assert (
-            expected_status.value == response.status_code
+            expected_status == response.status_code
         ), f"Expected {expected_status} but got {response.status_code}"
 
     @staticmethod
@@ -28,6 +36,11 @@ class RestAssertions:
         assert (
             content_type is not None and expected_content_type in content_type
         ), f"Expected {expected_content_type} but got {content_type}"
+
+    @staticmethod
+    def assert_body_match(data: Any, expected: Any) -> None:
+        """Basic data assertion to match the full data"""
+        assert data == expected, f"Expected body {expected}, got {data}"
 
     @staticmethod
     def assert_path_exists(data: Any, json_path: str) -> None:

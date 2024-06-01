@@ -113,10 +113,10 @@ Then open another console, activate the env and go to automation folder
 Once there run the tests using:
 
 ```bash
-python automation.py
+behave
 ```
 
-You can see the console output with several test cases names and status (PASSED/ FAILED)
+You can see the console output with several features, scenarios and steps and its status as passed, failed or skipped.
 
 # Advanced use cases
 
@@ -161,6 +161,7 @@ This app can be hosted in [Railway](https://railway.app), folder that helps with
 
 ## List of cool technologies in use here
 
+- [Behave](https://behave.readthedocs.io/en/latest/)
 - [Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [Flask-Bootstrap](https://pythonhosted.org/Flask-Bootstrap/)
 - [FLask-Caching](https://flask-caching.readthedocs.io/en/latest/index.html)
