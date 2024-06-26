@@ -13,7 +13,7 @@ from generic_api_step import step_post_call_url
 from features import constants
 
 
-@when("user call money endpoint as /api/money/'{path}'")
+@when("user call money endpoint as /api/money/{path}")
 def step_when_call_money_endpoint(context: Any, path: str) -> None:
     """Calling POST /api/money/{path} on our api"""
     context.response = step_post_call_url(
@@ -34,17 +34,3 @@ def step_then_money_response_should_match(context: Any) -> None:
     data = safe_response.json()
     RestAssertions.assert_path_exists(data, "available_cash")
     RestAssertions.assert_path_exists(data, "units")
-
-
-@then("response should match money validations for bad request")
-def step_then_money_response_should_match_bad_request(context: Any) -> None:
-    """Check money response match status and some body validations"""
-    actual_response = context.response
-
-    RestAssertions.assert_not_error(actual_response)
-    safe_response: Response = actual_response
-    RestAssertions.assert_status(safe_response, HTTPStatus.BAD_REQUEST.value)
-    RestAssertions.assert_content_type(safe_response, constants.JSON_TYPE)
-    data = safe_response.json()
-    RestAssertions.assert_path_exists(data, "path")
-    RestAssertions.assert_path_exists(data, "message")

@@ -1,19 +1,24 @@
 """Basic health check route"""
 
-from flask import Blueprint, jsonify, typing
-from flask_limiter import Limiter
-from flasgger import swag_from
+from http import HTTPStatus
+from flask import jsonify, typing
+from flask_restx import Namespace, Resource, fields
+from app.core.limiter import app_limiter
 
 
-def create_health_bp(limiter: Limiter) -> Blueprint:
-    """Blueprint to expose the health check on api"""
-    health_bp = Blueprint("health", __name__)
+health_ns = Namespace("health", description="App status/readiness check")
 
-    @health_bp.route("/health", methods=["GET"])
-    @limiter.exempt
-    @swag_from("../docs/health.yml")
-    def health_check() -> typing.ResponseReturnValue:
+health_model = health_ns.model(
+    "Health", {"status": fields.String(required=True, description="UP if app is live")}
+)
+
+
+@health_ns.route("")
+class HealthResource(Resource):
+    """Namespace to expose the health check on api"""
+
+    @app_limiter.exempt
+    @health_ns.response(HTTPStatus.OK.value, "App Up and working", health_model)
+    def get(self) -> typing.ResponseReturnValue:
         """Return UP if app is running"""
         return jsonify(status="UP")
-
-    return health_bp

@@ -1,0 +1,8 @@
+{
+	"base_cost": 1500,
+	"is_stealth": false,
+	"build_limit": false,
+	"can_swim": false,
+	"can_fly": false,
+	"is_special": true
+}

@@ -5,10 +5,7 @@ import os
 from werkzeug.exceptions import HTTPException
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
-from flasgger import Swagger
 from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
@@ -16,15 +13,16 @@ from app.configs.cache_cfg import CacheConfig
 from app.configs.lazy_cfg_loader import LazyImporter
 from app.configs.log_cfg import log, LOG_NAME
 import app.const as consts
-from app.core.app_cache import cache
-from app.error import handler
+from app.core.api import api
+from app.core.cache import app_cache
+from app.core.limiter import app_limiter
+from app.error import handler_api
 from app.models.database import db
 
 # this import should be in place, to let migrate command find the tables
-from app.models import models
-from app.models import schemas
-from app.routes import cache_bp, create_health_bp
-from app.routes.models import create_crud_blueprint, money_bp
+from app.models import models, schemas
+from app.routes import cache_ns, health_ns
+from app.routes.models import crud_route_ns, money_ns
 
 
 BASE_PATH = "/api"
@@ -50,113 +48,101 @@ def create_app() -> Flask:
         )
     app.config.from_object(db_config)
     app.config.from_object(CacheConfig)
+    api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     bootstrap.init_app(app)
-    cache.init_app(app)
-    limiter = Limiter(
-        get_remote_address,
-        app=app,
-        default_limits=["30/minute"],
-        storage_uri="memory://",
-    )
-    Swagger(
-        app,
-        template={
-            "info": {
-                "title": "C&C Api",
-                "version": "1.0.0",
-                "description": "C&C Wiki using Flask",
-            }
-        },
-    )
+    app_cache.init_app(app)
+    app_limiter.init_app(app)
 
     # Integrate the logger with the Flask app
     app.logger.addHandler(log.handlers[0])
 
-    app.register_error_handler(HTTPException, handler.http_exc_handler)
-    app.register_error_handler(ValidationError, handler.val_exc_handler)
-    app.register_error_handler(IntegrityError, handler.sqlalchemy_exc_handler)
-    app.register_error_handler(Exception, handler.base_exc_handler)
+    api.error_handlers[HTTPException] = handler_api.http_exc_handler
+    api.error_handlers[ValidationError] = handler_api.val_exc_handler
+    api.error_handlers[IntegrityError] = handler_api.sqlalchemy_exc_handler
+    api.error_handlers[Exception] = handler_api.base_exc_handler
 
-    routes = [
-        ("/", create_health_bp(limiter)),
-        (BASE_PATH, cache_bp),
-        (BASE_PATH, money_bp),
-        (
-            BASE_PATH,
-            create_crud_blueprint(models.Boat, schemas.BoatBase, schemas.BoatList),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.BoatXFaction, schemas.BoatXFactionBase, schemas.BoatXFactionList
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.Faction, schemas.FactionBase, schemas.FactionList
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(models.Game, schemas.GameBase, schemas.GameList),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.Infantry, schemas.InfantryBase, schemas.InfantryList
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.InfantryXFaction,
-                schemas.InfantryXFactionBase,
-                schemas.InfantryXFactionList,
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(models.Plane, schemas.PlaneBase, schemas.PlaneList),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.PlaneXFaction,
-                schemas.PlaneXFactionBase,
-                schemas.PlaneXFactionList,
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.Structure, schemas.StructureBase, schemas.StructureList
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.StructureXFaction,
-                schemas.StructureXFactionBase,
-                schemas.StructureXFactionList,
-            ),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(models.Tank, schemas.TankBase, schemas.TankList),
-        ),
-        (
-            BASE_PATH,
-            create_crud_blueprint(
-                models.TankXFaction, schemas.TankXFactionBase, schemas.TankXFactionList
-            ),
-        ),
+    api_routes = [
+        {
+            "name": "boats",
+            "model": models.Boat,
+            "schema": schemas.BoatBase,
+            "schema_list": schemas.BoatList,
+        },
+        {
+            "name": "boatxfactions",
+            "model": models.BoatXFaction,
+            "schema": schemas.BoatXFactionBase,
+            "schema_list": schemas.BoatXFactionList,
+        },
+        {
+            "name": "factions",
+            "model": models.Faction,
+            "schema": schemas.FactionBase,
+            "schema_list": schemas.FactionList,
+        },
+        {
+            "name": "games",
+            "model": models.Game,
+            "schema": schemas.GameBase,
+            "schema_list": schemas.GameList,
+        },
+        {
+            "name": "infantry",
+            "model": models.Infantry,
+            "schema": schemas.InfantryBase,
+            "schema_list": schemas.InfantryList,
+        },
+        {
+            "name": "infantryxfactions",
+            "model": models.InfantryXFaction,
+            "schema": schemas.InfantryXFactionBase,
+            "schema_list": schemas.InfantryXFactionList,
+        },
+        {
+            "name": "planes",
+            "model": models.Plane,
+            "schema": schemas.PlaneBase,
+            "schema_list": schemas.PlaneList,
+        },
+        {
+            "name": "planexfactions",
+            "model": models.PlaneXFaction,
+            "schema": schemas.PlaneXFactionBase,
+            "schema_list": schemas.PlaneXFactionList,
+        },
+        {
+            "name": "structures",
+            "model": models.Structure,
+            "schema": schemas.StructureBase,
+            "schema_list": schemas.StructureList,
+        },
+        {
+            "name": "structurexfactions",
+            "model": models.StructureXFaction,
+            "schema": schemas.StructureXFactionBase,
+            "schema_list": schemas.StructureXFactionList,
+        },
+        {
+            "name": "tanks",
+            "model": models.Tank,
+            "schema": schemas.TankBase,
+            "schema_list": schemas.TankList,
+        },
+        {
+            "name": "tankxfactions",
+            "model": models.TankXFaction,
+            "schema": schemas.TankXFactionBase,
+            "schema_list": schemas.TankXFactionList,
+        },
     ]
 
-    for url, blueprint in routes:
-        app.register_blueprint(blueprint, url_prefix=url)
+    namespaces = [cache_ns, health_ns, money_ns]
+    namespaces.extend(crud_route_ns(api_routes))
+
+    for ns in namespaces:
+        api.add_namespace(ns)
 
     with app.app_context():
 

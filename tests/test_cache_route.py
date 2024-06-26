@@ -2,7 +2,9 @@
 
 from http import HTTPStatus
 import json
+from typing import cast
 from flask import Flask
+import tests.test_helper as helper
 
 
 def test_check_cache_keys(app: Flask) -> None:
@@ -10,7 +12,8 @@ def test_check_cache_keys(app: Flask) -> None:
     client = app.test_client()
     response = client.get("/api/cache/keys")
     assert response.status_code == HTTPStatus.OK.value
-    data = json.loads(response.data.decode("utf-8"))
+    data_bytes: bytes = cast(bytes, response.data)
+    data = json.loads(data_bytes.decode(helper.UTF_8))
     assert data == []
 
 

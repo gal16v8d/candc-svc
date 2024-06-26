@@ -19,8 +19,8 @@ def get_all(model: Any) -> List[Any]:
 def get_by_id(model: Type[SQLModel], data_id: Any) -> Any:
     """Fetch data by id"""
     session = db.session()
-    data = session.query(model).get(data_id)
-    if data and data.active is True:
+    data = session.get(model, data_id)
+    if data and hasattr(data, "active") and data.active is True:
         return data
     return None
 

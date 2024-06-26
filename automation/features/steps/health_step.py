@@ -18,7 +18,7 @@ def step_when_call_health_endpoint(context: Any) -> None:
     context.response = step_get_call_url("health")
 
 
-@then("response should match '{file_path}'")
+@then("response should match JSON file {file_path}")
 def step_then_response_should_match(context: Any, file_path: str) -> None:
     """Check health response match status and body"""
     expected_response: Dict[str, Any] = config.load_json(file_path)

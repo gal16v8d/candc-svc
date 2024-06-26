@@ -72,6 +72,9 @@ class RestAssertions:
         """
         error_list = []
         for key, val in arg_and_type.items():
-            if not isinstance(data.get(key), val):
+            data_key = data.get(key)
+            if data_key is None:
+                error_list.append(f"Should have {key} arg defined")
+            if not isinstance(data_key, val):
                 error_list.append(f"{key} should be {val}")
         assert len(error_list) == 0, ", ".join(error_list)

@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Callable, List
 from app.configs.log_cfg import LOG_NAME
-from app.core.app_cache import cache
+from app.core.cache import app_cache
 
 
 log = logging.getLogger(LOG_NAME)
@@ -13,7 +13,7 @@ class CacheService:
     """Allow to manage data in cache"""
 
     def __init__(self) -> None:
-        self.cache = cache
+        self.cache = app_cache
 
     # pylint: disable=W0212
     def get_cache_keys(self) -> List[str]:

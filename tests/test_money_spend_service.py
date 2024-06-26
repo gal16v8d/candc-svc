@@ -27,20 +27,24 @@ class TestMoneySpendService(TestCase):
         name="Black Eagle", base_cost=1200, custom_cost=None, build_limit=False
     )
 
-    def setUp(self) -> None:
-        self._cache_service_patch = patch(
-            "app.service.money_spend_service.CacheService"
-        )
-        self._db_execute_patch = patch(
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up patches and vars for all test methods in this class."""
+        cls._cache_service_patch = patch("app.service.money_spend_service.CacheService")
+        cls._db_execute_patch = patch(
             "app.service.money_spend_service.db.session.execute"
         )
-        self._cache_service_mock = self._cache_service_patch.start()
-        self._db_execute_mock = self._db_execute_patch.start()
+        cls._cache_service_mock = cls._cache_service_patch.start()
+        cls._db_execute_mock = cls._db_execute_patch.start()
+
+    def setUp(self) -> None:
         self.money_spend_service = MoneySpendService()
 
-    def tearDown(self) -> None:
-        self._cache_service_patch.stop()
-        self._db_execute_patch.stop()
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Stop all patches started in setUpClass."""
+        cls._cache_service_patch.stop()
+        cls._db_execute_patch.stop()
 
     def test_retrieve_cost_custom(self) -> None:
         """Test retrieve_cost when custom cost exists"""

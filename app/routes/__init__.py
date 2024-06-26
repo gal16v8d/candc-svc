@@ -1,7 +1,7 @@
 """Index for health route"""
 
-from app.routes.cache_bp import cache_bp
-from app.routes.health import create_health_bp
+from app.routes.cache import cache_ns
+from app.routes.health import health_ns
 
 
-__all__ = ["cache_bp", "create_health_bp"]
+__all__ = ["cache_ns", "health_ns"]

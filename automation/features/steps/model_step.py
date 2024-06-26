@@ -9,14 +9,13 @@ from requests import Response
 
 # pylint: disable=import-error
 from assertions.rest import RestAssertions
-from generic_api_step import step_get_call_url
+from generic_api_step import step_get_call_url, step_post_call_url
 from features import constants
 
 
 MODELS: Dict[str, Any] = {
     "boats": {
         "created_at": str,
-        "updated_at": str,
         "boat_id": int,
         "base_cost": int,
         "name": str,
@@ -54,7 +53,6 @@ MODELS: Dict[str, Any] = {
         "is_stealth": bool,
         "name": str,
         "target_air_unit": bool,
-        "updated_at": str,
     },
     "infantryxfactions": {
         "active": bool,
@@ -102,37 +100,56 @@ MODELS: Dict[str, Any] = {
         "structure_id": int,
     },
     "tanks": {
-       "active": bool,
-		"base_cost": int,
-		"build_limit": bool,
-		"can_swim": bool,
-		"created_at": str,
-		"is_special": bool,
-		"is_stealth": bool,
-		"name": str,
-		"notes": str,
-		"tank_id": int,
-		"target_air_unit": bool 
+        "active": bool,
+        "base_cost": int,
+        "build_limit": bool,
+        "can_swim": bool,
+        "created_at": str,
+        "is_special": bool,
+        "is_stealth": bool,
+        "name": str,
+        "notes": str,
+        "tank_id": int,
+        "target_air_unit": bool,
     },
     "tankxfactions": {
         "active": bool,
-		"created_at": str,
-		"faction_id": int,
-		"id": int,
-		"tank_id": int
-    }
+        "created_at": str,
+        "faction_id": int,
+        "id": int,
+        "tank_id": int,
+    },
 }
 
 
-@when("user call model endpoint as /api/'{path}'")
-def step_when_call_model_endpoint(context: Any, path: str) -> None:
+@when("user call model GET endpoint as /api/{path}")
+def step_when_call_get_all_model_endpoint(context: Any, path: str) -> None:
     """Calling GET /api/{path} on our api"""
     context.response = step_get_call_url(f"api/{path}")
     context.path = path
 
 
-@then("response should match model validations")
-def step_then_model_response_should_match(context: Any) -> None:
+@when("user call model GET by Id endpoint as /api/{path}/{model_id}")
+def step_when_call_get_by_id_model_endpoint(
+    context: Any, path: str, model_id: int
+) -> None:
+    """Calling GET /api/{path}/{model_id} on our api"""
+    context.response = step_get_call_url(f"api/{path}/{model_id}")
+    context.path = path
+
+
+@when("user call model POST endpoint as /api/{path}")
+def step_when_call_post_model_endpoint(context: Any, path: str) -> None:
+    """Calling GET /api/{path} on our api"""
+    context.response = step_post_call_url(
+        f"api/{path}",
+        context.request_data if hasattr(context, "request_data") else {},
+    )
+    context.path = path
+
+
+@then("response should match model list validations")
+def step_then_model_response_should_match_list(context: Any) -> None:
     """Check model response match status, and some body validations"""
     actual_response = context.response
 
@@ -143,6 +160,21 @@ def step_then_model_response_should_match(context: Any) -> None:
     data = safe_response.json()
     RestAssertions.assert_is_list(data)
     if len(data) > 0:
-        model = context.path if hasattr(context, "path") else ""
+        model = context.path if hasattr(context, constants.JSON_NODE_PATH) else ""
         arg_and_type = MODELS.get(model, {})
         RestAssertions.assert_data_elements(data[0], arg_and_type)
+
+
+@then("response should match model element validations")
+def step_then_model_response_should_match_single(context: Any) -> None:
+    """Check model response match status, and some body validations"""
+    actual_response = context.response
+
+    RestAssertions.assert_not_error(actual_response)
+    safe_response: Response = actual_response
+    RestAssertions.assert_status(safe_response, HTTPStatus.OK.value)
+    RestAssertions.assert_content_type(safe_response, constants.JSON_TYPE)
+    data = safe_response.json()
+    model = context.path if hasattr(context, constants.JSON_NODE_PATH) else ""
+    arg_and_type = MODELS.get(model, {})
+    RestAssertions.assert_data_elements(data, arg_and_type)

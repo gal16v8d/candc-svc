@@ -1,5 +1,0 @@
-Allows to retrieve all the keys in cache
----
-responses:
-  200:
-    description: Cache cleared

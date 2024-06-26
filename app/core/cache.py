@@ -3,4 +3,4 @@
 from flask_caching import Cache
 
 
-cache = Cache()
+app_cache = Cache()

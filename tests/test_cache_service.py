@@ -9,14 +9,21 @@ from app.service.cache_service import CacheService
 class TestCacheService(TestCase):
     """Test cases for cache service class"""
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up patches and vars for all test methods in this class."""
+        cls._boats = "boats"
+        cls._cache_patch = patch("app.service.cache_service.app_cache")
+        cls._cache_mock = cls._cache_patch.start()
+
     def setUp(self) -> None:
-        self._boats = "boats"
-        self._cache_patch = patch("app.service.cache_service.cache")
-        self._cache_mock = self._cache_patch.start()
+        self._cache_mock.reset_mock()
         self.cache_service = CacheService()
 
-    def tearDown(self) -> None:
-        self._cache_patch.stop()
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Stop all patches started in setUpClass."""
+        cls._cache_patch.stop()
 
     @staticmethod
     def mock_fun(faction_id: int) -> List[Dict[str, Any]]:
