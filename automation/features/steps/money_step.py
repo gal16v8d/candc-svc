@@ -9,16 +9,16 @@ from requests import Response
 
 # pylint: disable=import-error
 from assertions.rest import RestAssertions
-from generic_api_step import step_post_call_url
+import generic_api_step
 from features import constants
 
 
 @when("user call money endpoint as /api/money/{path}")
 def step_when_call_money_endpoint(context: Any, path: str) -> None:
     """Calling POST /api/money/{path} on our api"""
-    context.response = step_post_call_url(
+    context.response = generic_api_step.step_post_call_url(
         f"api/money/{path}",
-        context.request_data if hasattr(context, "request_data") else {},
+        generic_api_step.get_request_data(context),
     )
 
 

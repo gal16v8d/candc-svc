@@ -3,7 +3,9 @@
 from http import HTTPStatus
 import json
 from typing import cast
+
 from flask import Flask
+
 import tests.test_helper as helper
 
 
@@ -63,8 +65,8 @@ def test_get_by_id(app: Flask) -> None:
 def test_create_not_valid(app: Flask) -> None:
     """Test case for create empty payload"""
     client = app.test_client()
-    response = client.post("/api/boats", json={})
-    helper.assert_api_error(response, HTTPStatus.BAD_REQUEST.value)
+    response = client.post("/api/boats")
+    helper.assert_api_error(response, HTTPStatus.UNSUPPORTED_MEDIA_TYPE.value)
 
 
 def test_create_missing_data(app: Flask) -> None:
@@ -81,8 +83,8 @@ def test_create_missing_data(app: Flask) -> None:
 def test_patch_item_not_valid(app: Flask) -> None:
     """Test case for patch empty payload"""
     client = app.test_client()
-    response = client.patch("/api/boats/1", json={})
-    helper.assert_api_error(response, HTTPStatus.BAD_REQUEST.value)
+    response = client.patch("/api/boats/1")
+    helper.assert_api_error(response, HTTPStatus.UNSUPPORTED_MEDIA_TYPE.value)
 
 
 def test_patch_item_not_updatable_created(app: Flask) -> None:

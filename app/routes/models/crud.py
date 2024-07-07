@@ -2,11 +2,13 @@
 
 from http import HTTPStatus
 from typing import Any, Dict, List, Type, Union
+
 from flask import make_response, jsonify, render_template, request, typing
 from flask_restx import Namespace, Resource
 from pydantic import BaseModel
 from sqlmodel import SQLModel
-from app.error.custom_exc import BadBodyException, NotFoundException
+
+from app.error.custom_exc import NotFoundException
 from app.models.database import (
     get_all,
     get_by_id,
@@ -69,13 +71,11 @@ def create_crud_resource(
         def post(self) -> typing.ResponseReturnValue:
             """Allow to create an item"""
             payload = request.get_json()
-            if payload:
-                model_schema = schema(**payload)
-                result = save(model, model_schema.dict())
-                cache_service.clear_cache_by_name(get_cache_key())
-                data = map_item_to_json(result)
-                return make_response(data, HTTPStatus.CREATED.value)
-            raise BadBodyException(name)
+            model_schema = schema(**payload)
+            result = save(model, model_schema.dict())
+            cache_service.clear_cache_by_name(get_cache_key())
+            data = map_item_to_json(result)
+            return make_response(data, HTTPStatus.CREATED.value)
 
     @ns.route("/<item_id>")
     @ns.param("item_id", f"{path_name}'s id to fetch data")
@@ -94,14 +94,12 @@ def create_crud_resource(
         def patch(self, item_id: int) -> typing.ResponseReturnValue:
             """Patch item using id"""
             payload = request.get_json()
-            if payload:
-                item = get_by_id(model, item_id)
-                if item:
-                    result = patch(item, payload)
-                    cache_service.clear_cache_by_name(get_cache_key())
-                    return jsonify(map_item_to_json(result))
-                raise NotFoundException(name)
-            raise BadBodyException(name)
+            item = get_by_id(model, item_id)
+            if item:
+                result = patch(item, payload)
+                cache_service.clear_cache_by_name(get_cache_key())
+                return jsonify(map_item_to_json(result))
+            raise NotFoundException(name)
 
         def delete(self, item_id: int) -> typing.ResponseReturnValue:
             """Allow to delete an item"""
@@ -123,8 +121,11 @@ def create_crud_resource(
                 items = get_by_query_args(model, query_params)
             else:
                 items = fetch_all_data()
-            items_schema = [schema(**i.to_dict()).dict() for i in items]
-            return render_template("table.html", data=items_schema)
+            items_schema = list(map(lambda i: schema(**i.to_dict()).dict(), items))
+            items_schema_html = render_template("table.html", data=items_schema)
+            response = make_response(items_schema_html)
+            response.headers["Content-Type"] = "text/html"
+            return response
 
     return [CrudBaseResource, CrudIdResource, CrudViewResource]
 
@@ -143,7 +144,6 @@ def crud_route_ns(routes: List[Dict[str, Any]]) -> List[Namespace]:
             ns, route.get("model"), route.get("schema"), route.get("schema_list")
         )
         # Append all the given path resources under the single namespace
-        for resource in resources:
-            ns.add_resource(resource)
+        map(ns.add_resource, resources)
         ns_list.append(ns)
     return ns_list

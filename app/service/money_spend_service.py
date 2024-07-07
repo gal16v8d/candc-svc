@@ -4,7 +4,9 @@ import logging
 import random
 from collections import Counter
 from typing import Any, Dict, List
+
 from sqlalchemy import select, join
+
 from app.configs.log_cfg import LOG_NAME
 from app.error.custom_exc import BadModelException
 from app.models.database import db
@@ -20,7 +22,7 @@ from app.models.models import (
     Tank,
     TankXFaction,
 )
-from app.models.schemas import MoneySpend
+from app.models.schemas import MoneySpend, MoneySpendRequest
 from app.service.cache_service import CacheService
 
 
@@ -79,25 +81,25 @@ class MoneySpendService:
         Attempt to exclude from options list any unit which has
         build limit restriction and has been selected.
         """
-        filtered_list = []
-        for opt in all_opt:
-            if opt.build_limit is False or (
-                opt.build_limit is True and opt.name not in result_list
-            ):
-                filtered_list.append(opt)
-        return filtered_list
+        return list(
+            filter(
+                lambda opt: opt.build_limit is False
+                or (opt.build_limit is True and opt.name not in result_list),
+                all_opt,
+            )
+        )
 
     def spend_money_by_type(
-        self, model_type: str, faction_id: int, money_to_spend: int
+        self, model_type: str, money_request: MoneySpendRequest
     ) -> Dict[str, Any]:
         """
         Spend money depending on faction, type and money to spend.
         """
         if model_type in switch_model_dict:
             data_options = self.fetch_cached_data_or_else(
-                model_type, faction_id, switch_model_dict[model_type]
+                model_type, money_request.faction_id, switch_model_dict[model_type]
             )
-            return self.spend_money(data_options, money_to_spend)
+            return self.spend_money(data_options, money_request.money)
         model_values = ", ".join(switch_model_dict.keys())
         raise BadModelException(f"Model should be one of: {model_values}")
 
@@ -128,7 +130,7 @@ class MoneySpendService:
         Retrieves random plane units to build depending on cash.
         """
         result_list = []
-        cost_list = [MoneySpendService.retrieve_cost(d) for d in data_options]
+        cost_list = list(map(MoneySpendService.retrieve_cost, data_options))
         if len(cost_list) > 0:
             lowest_cost: int = min(cost_list)
             while money_to_spend > 0 and money_to_spend >= lowest_cost:
@@ -136,16 +138,17 @@ class MoneySpendService:
                 filtered_options = MoneySpendService.filter_by_build_limit(
                     data_options, result_list
                 )
-                filtered_options = [
-                    data
-                    for data in filtered_options
-                    if MoneySpendService.retrieve_cost(data) <= money_to_spend
-                ]
+                filtered_options = list(
+                    filter(
+                        lambda data: MoneySpendService.retrieve_cost(data)
+                        <= money_to_spend,
+                        filtered_options,
+                    )
+                )
                 selected_data = random.choice(filtered_options)
                 result_list.append(selected_data.name)
                 money_to_spend -= MoneySpendService.retrieve_cost(selected_data)
-        val_count = Counter(result_list)
-        result_dict = dict(val_count)
+        result_dict = dict(Counter(result_list))
         return MoneySpend(units=result_dict, available_cash=money_to_spend).dict()
 
     # pylint: disable=C0121

@@ -2,6 +2,7 @@
 
 from typing import Any
 import pytest
+
 from app.configs.lazy_cfg_loader import LazyImporter
 
 

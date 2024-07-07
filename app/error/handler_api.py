@@ -3,10 +3,12 @@
 from http import HTTPStatus
 from typing import Any, Dict, Tuple, Union
 import logging
+
 from flask import request
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import HTTPException
+
 from app.configs.log_cfg import LOG_NAME
 from app.error import custom_exc
 
@@ -14,14 +16,19 @@ from app.error import custom_exc
 log = logging.getLogger(LOG_NAME)
 BAD_REQUEST_CLASSES = [
     custom_exc.BadArgException,
-    custom_exc.BadBodyException,
     custom_exc.BadModelException,
     custom_exc.UnpatchableFieldException,
 ]
 
 
 def http_exc_handler(exc: HTTPException) -> Tuple[Dict[str, Union[str, None]], int]:
-    """Maps httpexception in a json structured response"""
+    """
+    Maps httpexception in a json structured response
+    :param exc: exception raised in the app
+    :type exc: class:`werkzeug.exceptions.HTTPException`
+    :return: create a common structure with error data
+    :rtype: Tuple
+    """
     log.warning("HTTPException -> %s", str(exc), exc_info=exc)
     code = exc.code or HTTPStatus.INTERNAL_SERVER_ERROR.value
     response: Dict = {"path": request.path, "message": exc.description}

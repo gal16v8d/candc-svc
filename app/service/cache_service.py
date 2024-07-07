@@ -2,6 +2,7 @@
 
 import logging
 from typing import Any, Callable, List
+
 from app.configs.log_cfg import LOG_NAME
 from app.core.cache import app_cache
 
@@ -27,8 +28,7 @@ class CacheService:
         Delete all the elements in cache which starts with name
         """
         all_keys = self.get_cache_keys()
-        print(all_keys)
-        matched_keys = [key for key in all_keys if key.startswith(name)]
+        matched_keys = list(filter(lambda key: key.startswith(name), all_keys))
         for key in matched_keys:
             log.debug("About to remove %s key from cache", key)
             self.cache.delete(key)

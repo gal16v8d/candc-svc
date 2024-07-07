@@ -1,6 +1,7 @@
 """Prod configuration class to connect to db"""
 
 import os
+
 from app.configs.db.database_cfg import DbConfig
 import app.const as consts
 

@@ -2,7 +2,9 @@
 
 from http import HTTPStatus
 import json
+
 from flask import Flask
+
 import tests.test_helper as helper
 
 
@@ -25,15 +27,15 @@ def test_money_to_spend_bad_type(app: Flask) -> None:
     helper.assert_api_error(response, HTTPStatus.BAD_REQUEST.value)
 
 
-def test_money_to_spend_error(app: Flask) -> None:
+def test_money_to_spend_validation_error(app: Flask) -> None:
     """Test case for money_to_spend"""
     client = app.test_client()
     response = client.post("/api/money/not_supported", json={"money": 5000})
-    helper.assert_api_error(response, HTTPStatus.INTERNAL_SERVER_ERROR.value)
+    helper.assert_api_error(response, HTTPStatus.BAD_REQUEST.value)
 
 
 def test_money_to_spend_no_payload(app: Flask) -> None:
     """Test case for money_to_spend"""
     client = app.test_client()
-    response = client.post("/api/money/boats", json={})
-    helper.assert_api_error(response, HTTPStatus.BAD_REQUEST.value)
+    response = client.post("/api/money/boats")
+    helper.assert_api_error(response, HTTPStatus.UNSUPPORTED_MEDIA_TYPE.value)

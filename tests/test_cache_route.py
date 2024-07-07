@@ -3,7 +3,9 @@
 from http import HTTPStatus
 import json
 from typing import cast
+
 from flask import Flask
+
 import tests.test_helper as helper
 
 

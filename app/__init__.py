@@ -2,13 +2,15 @@
 
 import logging
 import os
-from werkzeug.exceptions import HTTPException
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_migrate import Migrate
 from pydantic import ValidationError
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import HTTPException
+
 from app.configs.cache_cfg import CacheConfig
 from app.configs.lazy_cfg_loader import LazyImporter
 from app.configs.log_cfg import log, LOG_NAME

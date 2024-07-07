@@ -12,16 +12,6 @@ class BadArgException(Exception):
         super().__init__(message)
 
 
-class BadBodyException(Exception):
-    """
-    This exception is raised if user does not
-    send the expected payload type in a request.
-    """
-
-    def __init__(self, name: str) -> None:
-        super().__init__(f"{name} data should be json")
-
-
 class BadModelException(Exception):
     """This exception is raised if user try to fetch a non-valid model"""
 

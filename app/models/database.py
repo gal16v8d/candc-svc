@@ -1,12 +1,14 @@
 """db and crud module"""
 
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, Final, List, Type
+
 from sqlmodel import SQLModel
 from flask_sqlalchemy import SQLAlchemy
+
 from app.error.custom_exc import BadArgException, UnpatchableFieldException
 
 
-NON_UPDATABLE_FIELDS = ["created_at", "updated_at"]
+NON_UPDATABLE_FIELDS: Final[List[str]] = ["created_at", "updated_at"]
 db = SQLAlchemy()
 
 
@@ -53,10 +55,10 @@ def patch(model: Any, data: Dict[str, Any]) -> Any:
     """Update object in database"""
     session = db.session()
     for key, value in data.items():
-        if hasattr(model, key) and key not in NON_UPDATABLE_FIELDS:
-            setattr(model, key, value)
-        elif key in NON_UPDATABLE_FIELDS:
+        if key in NON_UPDATABLE_FIELDS:
             raise UnpatchableFieldException(key)
+        elif hasattr(model, key):
+            setattr(model, key, value)
         else:
             raise BadArgException(
                 f"Attribute '{key}' is not part of '{model.__tablename__}' info"

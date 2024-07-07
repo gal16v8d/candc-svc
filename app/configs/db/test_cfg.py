@@ -1,6 +1,7 @@
 """Test configuration class to connect to db"""
 
 from dotenv import dotenv_values, find_dotenv
+
 from app.configs.db.database_cfg import DbConfig
 import app.const as consts
 

@@ -9,7 +9,7 @@ from requests import Response
 
 # pylint: disable=import-error
 from assertions.rest import RestAssertions
-from generic_api_step import step_get_call_url, step_post_call_url
+import generic_api_step
 from features import constants
 
 
@@ -125,7 +125,7 @@ MODELS: Dict[str, Any] = {
 @when("user call model GET endpoint as /api/{path}")
 def step_when_call_get_all_model_endpoint(context: Any, path: str) -> None:
     """Calling GET /api/{path} on our api"""
-    context.response = step_get_call_url(f"api/{path}")
+    context.response = generic_api_step.step_get_call_url(f"api/{path}")
     context.path = path
 
 
@@ -134,16 +134,26 @@ def step_when_call_get_by_id_model_endpoint(
     context: Any, path: str, model_id: int
 ) -> None:
     """Calling GET /api/{path}/{model_id} on our api"""
-    context.response = step_get_call_url(f"api/{path}/{model_id}")
+    context.response = generic_api_step.step_get_call_url(f"api/{path}/{model_id}")
     context.path = path
 
 
 @when("user call model POST endpoint as /api/{path}")
 def step_when_call_post_model_endpoint(context: Any, path: str) -> None:
-    """Calling GET /api/{path} on our api"""
-    context.response = step_post_call_url(
+    """Calling POST /api/{path} on our api"""
+    context.response = generic_api_step.step_post_call_url(
         f"api/{path}",
-        context.request_data if hasattr(context, "request_data") else {},
+        generic_api_step.get_request_data(context),
+    )
+    context.path = path
+
+
+@when("user call model PATCH endpoint as /api/{path}/{model_id}")
+def step_when_call_patch_model_endpoint(context: Any, path: str, model_id: int) -> None:
+    """Calling PATCH /api/{path}/{model_id} on our api"""
+    context.response = generic_api_step.step_patch_call_url(
+        f"api/{path}/{model_id}",
+        generic_api_step.get_request_data(context),
     )
     context.path = path
 
@@ -160,7 +170,7 @@ def step_then_model_response_should_match_list(context: Any) -> None:
     data = safe_response.json()
     RestAssertions.assert_is_list(data)
     if len(data) > 0:
-        model = context.path if hasattr(context, constants.JSON_NODE_PATH) else ""
+        model = getattr(context, constants.JSON_NODE_PATH, "")
         arg_and_type = MODELS.get(model, {})
         RestAssertions.assert_data_elements(data[0], arg_and_type)
 
@@ -175,6 +185,13 @@ def step_then_model_response_should_match_single(context: Any) -> None:
     RestAssertions.assert_status(safe_response, HTTPStatus.OK.value)
     RestAssertions.assert_content_type(safe_response, constants.JSON_TYPE)
     data = safe_response.json()
-    model = context.path if hasattr(context, constants.JSON_NODE_PATH) else ""
+    model = getattr(context, constants.JSON_NODE_PATH, "")
     arg_and_type = MODELS.get(model, {})
     RestAssertions.assert_data_elements(data, arg_and_type)
+
+
+@then("request data is cleared out")
+def step_then_request_data_is_cleared(context: Any) -> None:
+    """Clear out request data"""
+    if hasattr(context, "request_data") and context.request_data:
+        context.request_data = None

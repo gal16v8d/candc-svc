@@ -53,8 +53,8 @@ class RestAssertions:
     def assert_path_value(data: Any, json_path: str, expected_val: Any) -> None:
         """Asserts data["json_path"] compared with expected_val"""
         assert (
-            data[json_path] == expected_val
-        ), f"Expected {str(expected_val)} but got {str(data[json_path])}"
+            data.get(json_path) == expected_val
+        ), f"Expected {str(expected_val)} but got {str(data.get(json_path))}"
 
     @staticmethod
     def assert_is_list(data: Any) -> None:

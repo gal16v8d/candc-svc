@@ -2,9 +2,10 @@
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel
-from sqlmodel import BigInteger, Column, DateTime, Field, SQLModel, String
+
+from pydantic import BaseModel, PositiveInt
 from sqlalchemy import inspect
+from sqlmodel import BigInteger, Column, DateTime, Field, SQLModel, String
 
 
 # Base models
@@ -272,3 +273,9 @@ class MoneySpend(BaseModel):
 
     available_cash: int
     units: Dict[str, int]
+
+
+# Requests
+class MoneySpendRequest(BaseModel):
+    faction_id: PositiveInt
+    money: PositiveInt

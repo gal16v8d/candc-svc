@@ -1,6 +1,7 @@
 """All db models definition"""
 
 from sqlalchemy import UniqueConstraint
+
 import app.models.schemas as schemas
 
 

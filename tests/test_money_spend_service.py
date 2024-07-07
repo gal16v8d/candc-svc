@@ -3,8 +3,10 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from typing import NamedTuple, Optional
+
 from app.error.custom_exc import BadModelException
 from app.models.models import Boat, BoatXFaction
+from app.models.schemas import MoneySpendRequest
 from app.service.money_spend_service import MoneySpendService
 
 
@@ -26,6 +28,7 @@ class TestMoneySpendService(TestCase):
     BLACK_EAGLE_ROW = DbResultRow(
         name="Black Eagle", base_cost=1200, custom_cost=None, build_limit=False
     )
+    MONEY_REQUEST = MoneySpendRequest(faction_id=1, money=20000)
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -78,7 +81,7 @@ class TestMoneySpendService(TestCase):
     def test_spend_money_by_type_unsupported(self) -> None:
         """Test spend_money_by_type invalid type"""
         with self.assertRaises(BadModelException) as ctx:
-            self.money_spend_service.spend_money_by_type("error", 1, 20000)
+            self.money_spend_service.spend_money_by_type("error", self.MONEY_REQUEST)
         self.assertEqual(
             "Model should be one of: " + "boats, infantry, planes, structures, tanks",
             str(ctx.exception),
@@ -104,7 +107,9 @@ class TestMoneySpendService(TestCase):
                 "Heavy Cruiser": 3,
             },
         }
-        result = self.money_spend_service.spend_money_by_type("boats", 1, 20000)
+        result = self.money_spend_service.spend_money_by_type(
+            "boats", self.MONEY_REQUEST
+        )
         self.assertEqual(300, result["available_cash"])
         self.assertEqual(6, len(result["units"].keys()))
         mock_fetch_data.assert_called_once()

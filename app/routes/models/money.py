@@ -1,8 +1,12 @@
 """Money route handler"""
 
+from http import HTTPStatus
+
 from flask import jsonify, request, typing
-from flask_restx import Namespace, Resource, fields
-from app.error.custom_exc import BadBodyException
+from flask_restx import Namespace, Resource
+
+from app.models.schemas import MoneySpendRequest
+from app.models.swagger import get_money_model_response
 from app.service.money_spend_service import MoneySpendService
 
 
@@ -11,10 +15,7 @@ money_ns = Namespace(
     description="Helps to calculate how to spend money on game stuff",
     path="/api/money",
 )
-money_model = money_ns.model(
-    "MoneyData",
-    {"available_cash": fields.Integer(description="Money that was not spend")},
-)
+money_model = get_money_model_response(money_ns)
 money_service = MoneySpendService()
 
 
@@ -23,15 +24,16 @@ money_service = MoneySpendService()
 class MoneyResource(Resource):
     """Money check endpoints"""
 
+    @money_ns.response(
+        HTTPStatus.OK.value, "Return a way to spend the money building", money_model
+    )
     def post(self, model_type: str) -> typing.ResponseReturnValue:
         """
-        It can retrieve a random generated planes quantity given
+        It can retrieve a random generated things to build given
         the faction_id and money amount
+        :param model_type: model that we want to build
         """
         payload = request.get_json()
-        if payload:
-            result = money_service.spend_money_by_type(
-                model_type, payload["faction_id"], payload["money"]
-            )
-            return jsonify(result)
-        raise BadBodyException("money payload")
+        money_request = MoneySpendRequest(**payload)
+        result = money_service.spend_money_by_type(model_type, money_request)
+        return jsonify(result)
