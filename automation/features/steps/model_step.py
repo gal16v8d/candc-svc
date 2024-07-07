@@ -126,7 +126,6 @@ MODELS: Dict[str, Any] = {
 def step_when_call_get_all_model_endpoint(context: Any, path: str) -> None:
     """Calling GET /api/{path} on our api"""
     context.response = generic_api_step.step_get_call_url(f"api/{path}")
-    context.path = path
 
 
 @when("user call model GET by Id endpoint as /api/{path}/{model_id}")
@@ -135,7 +134,6 @@ def step_when_call_get_by_id_model_endpoint(
 ) -> None:
     """Calling GET /api/{path}/{model_id} on our api"""
     context.response = generic_api_step.step_get_call_url(f"api/{path}/{model_id}")
-    context.path = path
 
 
 @when("user call model POST endpoint as /api/{path}")
@@ -145,7 +143,6 @@ def step_when_call_post_model_endpoint(context: Any, path: str) -> None:
         f"api/{path}",
         generic_api_step.get_request_data(context),
     )
-    context.path = path
 
 
 @when("user call model PATCH endpoint as /api/{path}/{model_id}")
@@ -155,7 +152,16 @@ def step_when_call_patch_model_endpoint(context: Any, path: str, model_id: int) 
         f"api/{path}/{model_id}",
         generic_api_step.get_request_data(context),
     )
-    context.path = path
+
+
+@when("user call model DELETE endpoint as /api/{path}/{model_id}")
+def step_when_call_delete_model_endpoint(
+    context: Any, path: str, model_id: int
+) -> None:
+    """Calling DELETE /api/{path}/{model_id} on our api"""
+    context.response = generic_api_step.step_delete_call_url(
+        f"api/{path}/{model_id}",
+    )
 
 
 @then("response should match model list validations")

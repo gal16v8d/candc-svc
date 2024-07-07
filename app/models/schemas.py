@@ -277,5 +277,7 @@ class MoneySpend(BaseModel):
 
 # Requests
 class MoneySpendRequest(BaseModel):
+    """Schema for receive data for spend money"""
+
     faction_id: PositiveInt
     money: PositiveInt

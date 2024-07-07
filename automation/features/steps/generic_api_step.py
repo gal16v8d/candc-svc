@@ -38,9 +38,7 @@ def step_then_error_response_from_api(context: Any, status: str) -> None:
 
 
 @then("user get error from api and msg is {msg}")
-def step_then_error_response_from_api_match_msg(
-    context: Any, msg: str
-) -> None:
+def step_then_error_response_from_api_match_msg(context: Any, msg: str) -> None:
     """Check model response match status, and some body validations"""
     actual_response = context.response
 
@@ -75,5 +73,14 @@ def step_patch_call_url(path: str, payload: Union[Dict[str, Any], None]) -> Any:
     return requests.patch(
         f"{config.get_base_url()}/{path}",
         json=payload,
+        timeout=constants.REQUEST_TIMEOUT,
+    )
+
+
+@rest_call_validator
+def step_delete_call_url(path: str) -> Any:
+    """Generic DELETE call to the api appending the path"""
+    return requests.delete(
+        f"{config.get_base_url()}/{path}",
         timeout=constants.REQUEST_TIMEOUT,
     )
