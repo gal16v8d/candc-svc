@@ -2,6 +2,7 @@
 
 from http import HTTPStatus
 import json
+from typing import cast
 
 from flask import Flask
 
@@ -13,7 +14,8 @@ def test_money_to_spend(app: Flask) -> None:
     client = app.test_client()
     response = client.post("/api/money/boats", json={"money": 5000, "faction_id": 1})
     assert response.status_code == HTTPStatus.OK.value
-    data = json.loads(response.data.decode(helper.UTF_8))
+    data_bytes: bytes = cast(bytes, response.data)
+    data = json.loads(data_bytes.decode(helper.UTF_8))
     assert data["available_cash"] is not None
     assert data["units"] is not None
 
