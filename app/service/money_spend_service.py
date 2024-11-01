@@ -27,7 +27,7 @@ from app.service.cache_service import CacheService
 
 
 log = logging.getLogger(LOG_NAME)
-switch_model_dict: dict[str, Any] = {
+switch_model_dict: Dict[str, Any] = {
     "boats": {
         "model_1": Boat,
         "model_2": BoatXFaction,

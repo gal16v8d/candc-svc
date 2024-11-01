@@ -35,7 +35,7 @@ def create_crud_resource(
         """get cache key for the model"""
         return path_name if item_id is None else f"{path_name}-{item_id}"
 
-    def fetch_all_data() -> List[Any]:
+    def fetch_all_data() -> List[Type[SQLModel]]:
         """
         Fetch all data from db and transform in dict
         """

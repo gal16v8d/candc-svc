@@ -12,19 +12,18 @@ class TestCacheService(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        """Set up patches and vars for all test methods in this class."""
+        """Set up main data."""
         cls._boats = "boats"
-        cls._cache_patch = patch("app.service.cache_service.app_cache")
-        cls._cache_mock = cls._cache_patch.start()
 
     def setUp(self) -> None:
-        self._cache_mock.reset_mock()
+        """Set up patches and test class"""
+        self._cache_patch = patch("app.service.cache_service.app_cache")
+        self._cache_mock = self._cache_patch.start()
         self.cache_service = CacheService()
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Stop all patches started in setUpClass."""
-        cls._cache_patch.stop()
+    def tearDown(self) -> None:
+        """Stop all patches."""
+        self._cache_patch.stop()
 
     @staticmethod
     def mock_fun(faction_id: int) -> List[Dict[str, Any]]:
