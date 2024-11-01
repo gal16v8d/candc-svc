@@ -26,5 +26,4 @@ ARG PORT
 EXPOSE ${PORT}
 
 # Command to run your application
-# CMD ["flask", "run"]
 CMD ["gunicorn", "--workers", "2", "wsgi:app"]

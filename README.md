@@ -52,6 +52,12 @@ Remove a dependency you don't need:
 poetry remove lib_here
 ```
 
+Update all (updatable) libs
+
+```bash
+poetry update
+```
+
 # Set up
 
 # env
@@ -96,8 +102,16 @@ flask db upgrade
 
 # launch
 
+Dev mode:
+
 ```bash
 flask run
+```
+
+Prod run:
+
+```bash
+gunicorn --workers {# workers here} --bind 0.0.0.0:{port here} wsgi:app
 ```
 
 # test
