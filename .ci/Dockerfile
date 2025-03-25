@@ -14,7 +14,7 @@ RUN apt-get update && \
 
 # Install dependencies using poetry
 RUN /root/.local/bin/poetry config virtualenvs.create false && \
-    /root/.local/bin/poetry install --no-interaction --no-ansi
+    /root/.local/bin/poetry install --no-root --no-interaction --no-ansi
 
 # Railway pass env to image with the following args
 ARG CANDC_DB_URL
