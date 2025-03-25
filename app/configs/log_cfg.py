@@ -2,13 +2,14 @@
 
 import logging
 import os
+from typing import Final
 
 import app.const as consts
 
 
-LOG_NAME = "candc"
+LOG_NAME: Final[str] = "candc"
 LOG_LEVEL = logging.INFO
-log_file = f"{LOG_NAME}.log"
+LOG_FILE: Final[str] = f"{LOG_NAME}.log"
 
 
 log = logging.getLogger(LOG_NAME)
@@ -25,7 +26,7 @@ log.addHandler(console_handler)
 
 # Create a file handler and set the log level
 if os.getenv(consts.envs.CANDC_ENV) != "prod":
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(LOG_FILE)
     file_handler.setLevel(LOG_LEVEL)
     file_handler.setFormatter(formatter)
     log.addHandler(file_handler)

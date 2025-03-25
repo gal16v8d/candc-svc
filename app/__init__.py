@@ -2,6 +2,7 @@
 
 import logging
 import os
+from typing import Final
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -27,7 +28,7 @@ from app.routes import cache_ns, health_ns
 from app.routes.models import crud_route_ns, money_ns
 
 
-BASE_PATH = "/api"
+BASE_PATH: Final[str] = "/api"
 bootstrap = Bootstrap()
 migrate = Migrate()
 log = logging.getLogger(LOG_NAME)
