@@ -10,7 +10,7 @@ COPY . /app
 # Install poetry
 RUN apt-get update && \
     apt-get install -y curl && \
-    curl -sSL https://install.python-poetry.org | python3.12 -
+    curl -sSL https://install.python-poetry.org | python3.13 -
 
 # Install dependencies using poetry
 RUN /root/.local/bin/poetry config virtualenvs.create false && \
