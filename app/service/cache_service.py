@@ -1,7 +1,8 @@
 """Caching service for app"""
 
+from collections.abc import Callable
 import logging
-from typing import Any, Callable, List
+from typing import Any
 
 from app.configs.log_cfg import LOG_NAME
 from app.core.cache import app_cache
@@ -17,7 +18,7 @@ class CacheService:
         self.cache = app_cache
 
     # pylint: disable=W0212
-    def get_cache_keys(self) -> List[str]:
+    def get_cache_keys(self) -> list[str]:
         """
         List all the keys present in cache
         """

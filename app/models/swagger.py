@@ -1,16 +1,14 @@
 """Swagger models and examples"""
 
-from typing import Union
-
 from flask_restx import Namespace, Model, OrderedModel, fields
 
 
-def get_cache_model_response() -> Union[Model, OrderedModel]:
+def get_cache_model_response() -> Model | OrderedModel:
     """Build namespace model for cache keys response"""
     return fields.List(fields.String, description="List of keys", example=["boats"])
 
 
-def get_health_model_response(ns: Namespace) -> Union[Model, OrderedModel]:
+def get_health_model_response(ns: Namespace) -> Model | OrderedModel:
     """Build namespace model for health response"""
     return ns.model(
         "Health",
@@ -18,7 +16,7 @@ def get_health_model_response(ns: Namespace) -> Union[Model, OrderedModel]:
     )
 
 
-def get_money_model_response(ns: Namespace) -> Union[Model, OrderedModel]:
+def get_money_model_response(ns: Namespace) -> Model | OrderedModel:
     """Build namespace model for money response"""
     units_model = ns.model(
         "UnitsData", {"units": fields.Raw(example={"Aegis Cruiser": 2, "Dolphin": 4})}

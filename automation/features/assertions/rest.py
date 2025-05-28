@@ -1,6 +1,6 @@
 """Common rest api assertions"""
 
-from typing import Any, Dict
+from typing import Any
 import requests
 
 
@@ -63,7 +63,7 @@ class RestAssertions:
 
     @staticmethod
     def assert_data_elements(
-        data: Dict[str, Any], arg_and_type: Dict[str, Any]
+        data: dict[str, Any], arg_and_type: dict[str, Any]
     ) -> None:
         """
         Verify data element has all of the keys provided

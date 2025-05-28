@@ -1,7 +1,7 @@
 """All schema definition"""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, PositiveInt
 from sqlalchemy import inspect
@@ -12,7 +12,7 @@ from sqlmodel import BigInteger, Column, DateTime, Field, SQLModel, String
 class BaseSqlModelMixin(BaseModel):
     """Add util method for all the models"""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Transform sql model to dict"""
         return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
@@ -198,73 +198,73 @@ class TankXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
 class BoatList(BaseModel):
     """Help to serialize a list of boats"""
 
-    __root__: List[BoatBase]
+    __root__: list[BoatBase]
 
 
 class BoatXFactionList(BaseModel):
     """Help to serialize a list of boatxfactions"""
 
-    __root__: List[BoatXFactionBase]
+    __root__: list[BoatXFactionBase]
 
 
 class FactionList(BaseModel):
     """Help to serialize a list of factions"""
 
-    __root__: List[FactionBase]
+    __root__: list[FactionBase]
 
 
 class GameList(BaseModel):
     """Help to serialize a list of games"""
 
-    __root__: List[GameBase]
+    __root__: list[GameBase]
 
 
 class InfantryList(BaseModel):
     """Help to serialize a list of infantry"""
 
-    __root__: List[InfantryBase]
+    __root__: list[InfantryBase]
 
 
 class InfantryXFactionList(BaseModel):
     """Help to serialize a list of infantryxfaction"""
 
-    __root__: List[InfantryXFactionBase]
+    __root__: list[InfantryXFactionBase]
 
 
 class PlaneList(BaseModel):
     """Help to serialize a list of planes"""
 
-    __root__: List[PlaneBase]
+    __root__: list[PlaneBase]
 
 
 class PlaneXFactionList(BaseModel):
     """Help to serialize a list of planexfactions"""
 
-    __root__: List[PlaneXFactionBase]
+    __root__: list[PlaneXFactionBase]
 
 
 class StructureList(BaseModel):
     """Help to serialize a list of structures"""
 
-    __root__: List[StructureBase]
+    __root__: list[StructureBase]
 
 
 class StructureXFactionList(BaseModel):
     """Help to serialize a list of structurexfactions"""
 
-    __root__: List[StructureXFactionBase]
+    __root__: list[StructureXFactionBase]
 
 
 class TankList(BaseModel):
     """Help to serialize a list of tanks"""
 
-    __root__: List[TankBase]
+    __root__: list[TankBase]
 
 
 class TankXFactionList(BaseModel):
     """Help to serialize a list of tankxfactions"""
 
-    __root__: List[TankXFactionBase]
+    __root__: list[TankXFactionBase]
 
 
 # Custom models
@@ -272,7 +272,7 @@ class MoneySpend(BaseModel):
     """Schema that expose how to spend the money"""
 
     available_cash: int
-    units: Dict[str, int]
+    units: dict[str, int]
 
 
 # Requests

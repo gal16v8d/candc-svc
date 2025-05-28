@@ -1,6 +1,6 @@
 """Include all generic calls that can be reused by any step"""
 
-from typing import Any, Dict, Union
+from typing import Any
 
 # pylint: disable=no-name-in-module
 from behave import given, then
@@ -12,7 +12,7 @@ from features.assertions.rest import RestAssertions
 from features.decorators.api_validator import rest_call_validator
 
 
-def get_request_data(context: Any) -> Union[Any, None]:
+def get_request_data(context: Any) -> Any | None:
     """Check request data and get the value if exists"""
     return getattr(context, "request_data", None)
 
@@ -58,7 +58,7 @@ def step_get_call_url(path: str) -> Any:
 
 
 @rest_call_validator
-def step_post_call_url(path: str, payload: Union[Dict[str, Any], None]) -> Any:
+def step_post_call_url(path: str, payload: dict[str, Any] | None) -> Any:
     """Generic POST call to the api appending the path"""
     return requests.post(
         f"{config.get_base_url()}/{path}",
@@ -68,7 +68,7 @@ def step_post_call_url(path: str, payload: Union[Dict[str, Any], None]) -> Any:
 
 
 @rest_call_validator
-def step_patch_call_url(path: str, payload: Union[Dict[str, Any], None]) -> Any:
+def step_patch_call_url(path: str, payload: dict[str, Any] | None) -> Any:
     """Generic PATCH call to the api appending the path"""
     return requests.patch(
         f"{config.get_base_url()}/{path}",

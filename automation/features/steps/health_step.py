@@ -1,6 +1,6 @@
 """Define the actions to perform /health check"""
 
-from typing import Any, Dict
+from typing import Any
 
 # pylint: disable=no-name-in-module
 from behave import when, then
@@ -21,7 +21,7 @@ def step_when_call_health_endpoint(context: Any) -> None:
 @then("response should match JSON file {file_path}")
 def step_then_response_should_match(context: Any, file_path: str) -> None:
     """Check health response match status and body"""
-    expected_response: Dict[str, Any] = config.load_json(file_path)
+    expected_response: dict[str, Any] = config.load_json(file_path)
     actual_response = context.response
 
     RestAssertions.assert_not_error(actual_response)

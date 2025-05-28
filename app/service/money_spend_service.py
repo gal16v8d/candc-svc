@@ -1,9 +1,10 @@
 """Allows to check how to spend the money depending on model"""
 
+from builtins import map
 import logging
 import random
 from collections import Counter
-from typing import Any, Dict, List
+from typing import Any
 
 from sqlalchemy import select, join
 
@@ -27,7 +28,7 @@ from app.service.cache_service import CacheService
 
 
 log = logging.getLogger(LOG_NAME)
-switch_model_dict: Dict[str, Any] = {
+switch_model_dict: dict[str, Any] = {
     "boats": {
         "model_1": Boat,
         "model_2": BoatXFaction,
@@ -76,7 +77,7 @@ class MoneySpendService:
         return data.custom_cost if data.custom_cost is not None else data.base_cost
 
     @staticmethod
-    def filter_by_build_limit(all_opt: List[Any], result_list: List[str]) -> List[Any]:
+    def filter_by_build_limit(all_opt: list[Any], result_list: list[str]) -> list[Any]:
         """
         Attempt to exclude from options list any unit which has
         build limit restriction and has been selected.
@@ -91,7 +92,7 @@ class MoneySpendService:
 
     def spend_money_by_type(
         self, model_type: str, money_request: MoneySpendRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Spend money depending on faction, type and money to spend.
         """
@@ -104,14 +105,14 @@ class MoneySpendService:
         raise BadModelException(f"Model should be one of: {model_values}")
 
     def fetch_cached_data_or_else(
-        self, model_type: str, faction_id: int, data_dict: Dict[str, Any]
+        self, model_type: str, faction_id: int, data_dict: dict[str, Any]
     ) -> Any:
         """
         Find data by faction in cache else check in db
             Args:
                 model_type (str): boats, infantry, planes, structures, tanks
                 faction_id (int): army identifier
-                data_fun (Callable): fun to execute
+                data_dict (dict): contains fun to execute
             Returns:
                 Any data found in cache or db
         """
@@ -124,8 +125,8 @@ class MoneySpendService:
         )
 
     def spend_money(
-        self, data_options: List[Any], money_to_spend: int
-    ) -> Dict[str, Any]:
+        self, data_options: list[Any], money_to_spend: int
+    ) -> dict[str, Any]:
         """
         Retrieves random plane units to build depending on cash.
         """
@@ -152,7 +153,7 @@ class MoneySpendService:
         return MoneySpend(units=result_dict, available_cash=money_to_spend).dict()
 
     # pylint: disable=C0121
-    def get_data_by_faction_db(self, faction_id: int, data_dict: Dict[str, Any]):
+    def get_data_by_faction_db(self, faction_id: int, data_dict: dict[str, Any]):
         """
         Fetch db to get all the boats available for the faction.
         """

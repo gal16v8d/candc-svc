@@ -1,7 +1,8 @@
 """Decorator in use by the steps to validate and return PASSED/FAILED"""
 
+from collections.abc import Callable
 import functools
-from typing import Any, Callable
+from typing import Any
 
 import requests
 

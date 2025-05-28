@@ -1,7 +1,7 @@
 """Define the actions to perform CRUD /api/{model} check"""
 
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any
 
 # pylint: disable=no-name-in-module
 from behave import when, then
@@ -13,7 +13,7 @@ import generic_api_step
 from features import constants
 
 
-MODELS: Dict[str, Any] = {
+MODELS: dict[str, Any] = {
     "boats": {
         "created_at": str,
         "boat_id": int,

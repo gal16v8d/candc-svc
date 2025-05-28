@@ -1,7 +1,8 @@
 """Allow to generate a resource that can be reused to expose several crud models"""
 
+from builtins import map
 from http import HTTPStatus
-from typing import Any, Dict, List, Type, Union
+from typing import Any
 
 from flask import make_response, jsonify, render_template, request, typing
 from flask_restx import Namespace, Resource
@@ -22,20 +23,20 @@ from app.service.cache_service import CacheService
 
 def create_crud_resource(
     ns: Namespace,
-    model: Type[SQLModel],
-    schema: Type[BaseModel],
-    schema_list: Union[Type[BaseModel], None] = None,
-) -> List:
+    model: type[SQLModel],
+    schema: type[BaseModel],
+    schema_list: type[BaseModel] | None = None,
+) -> list:
     """Boilerplate code to create a crud resource"""
     name = model.__name__
     path_name = "infantry" if name == "Infantry" else f"{name.lower()}s"
     cache_service = CacheService()
 
-    def get_cache_key(item_id: Union[int, None] = None) -> str:
+    def get_cache_key(item_id: int | None = None) -> str:
         """get cache key for the model"""
         return path_name if item_id is None else f"{path_name}-{item_id}"
 
-    def fetch_all_data() -> List[Type[SQLModel]]:
+    def fetch_all_data() -> list[type[SQLModel]]:
         """
         Fetch all data from db and transform in dict
         """
@@ -130,7 +131,7 @@ def create_crud_resource(
     return [CrudBaseResource, CrudIdResource, CrudViewResource]
 
 
-def crud_route_ns(routes: List[Dict[str, Any]]) -> List[Namespace]:
+def crud_route_ns(routes: list[dict[str, Any]]) -> list[Namespace]:
     """Add all the relevant routes to create the namespaces"""
     ns_list = []
     for route in routes:

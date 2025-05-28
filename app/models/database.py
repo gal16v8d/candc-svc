@@ -1,6 +1,6 @@
 """db and crud module"""
 
-from typing import Any, Dict, Final, List, Optional, Type
+from typing import Any, Final
 
 from sqlmodel import SQLModel
 from flask_sqlalchemy import SQLAlchemy
@@ -8,17 +8,17 @@ from flask_sqlalchemy import SQLAlchemy
 from app.error.custom_exc import BadArgException, UnpatchableFieldException
 
 
-NON_UPDATABLE_FIELDS: Final[List[str]] = ["created_at", "updated_at"]
+NON_UPDATABLE_FIELDS: Final[list[str]] = ["created_at", "updated_at"]
 db = SQLAlchemy()
 
 
-def get_all(model: Type[SQLModel]) -> List[Type[SQLModel]]:
+def get_all(model: type[SQLModel]) -> list[type[SQLModel]]:
     """Fetch all active data"""
     session = db.session()
     return session.query(model).filter_by(active=True).all()
 
 
-def get_by_id(model: Type[SQLModel], data_id: int) -> Optional[Type[SQLModel]]:
+def get_by_id(model: type[SQLModel], data_id: int) -> type[SQLModel] | None:
     """Fetch data by id"""
     session = db.session()
     data = session.get(model, data_id)
@@ -28,8 +28,8 @@ def get_by_id(model: Type[SQLModel], data_id: int) -> Optional[Type[SQLModel]]:
 
 
 def get_by_query_args(
-    model: Type[SQLModel], data: Dict[str, str]
-) -> List[Type[SQLModel]]:
+    model: type[SQLModel], data: dict[str, str]
+) -> list[type[SQLModel]]:
     """Allow to search given certain args in data dict"""
     session = db.session()
     query = session.query(model)
@@ -43,7 +43,7 @@ def get_by_query_args(
     return query.all()
 
 
-def save(model: Type[SQLModel], data: Dict[str, Any]) -> Type[SQLModel]:
+def save(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
     """Persist object in database"""
     session = db.session()
     obj = model(**data)
@@ -53,7 +53,7 @@ def save(model: Type[SQLModel], data: Dict[str, Any]) -> Type[SQLModel]:
     return obj
 
 
-def patch(model: Type[SQLModel], data: Dict[str, Any]) -> Type[SQLModel]:
+def patch(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
     """Update object in database"""
     session = db.session()
     for key, value in data.items():
@@ -70,7 +70,7 @@ def patch(model: Type[SQLModel], data: Dict[str, Any]) -> Type[SQLModel]:
     return model
 
 
-def delete(obj: Type[SQLModel]) -> None:
+def delete(obj: type[SQLModel]) -> None:
     """Remove object from database"""
     session = db.session()
     session.delete(obj)

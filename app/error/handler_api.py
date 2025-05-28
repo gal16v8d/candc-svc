@@ -1,7 +1,7 @@
 """Exception handling for app"""
 
 from http import HTTPStatus
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 import logging
 
 from flask import request
@@ -21,7 +21,7 @@ BAD_REQUEST_CLASSES = [
 ]
 
 
-def http_exc_handler(exc: HTTPException) -> Tuple[Dict[str, Union[str, None]], int]:
+def http_exc_handler(exc: HTTPException) -> tuple[dict[str, str | None], int]:
     """
     Maps httpexception in a json structured response
     :param exc: exception raised in the app
@@ -31,30 +31,30 @@ def http_exc_handler(exc: HTTPException) -> Tuple[Dict[str, Union[str, None]], i
     """
     log.warning("HTTPException -> %s", str(exc), exc_info=exc)
     code = exc.code or HTTPStatus.INTERNAL_SERVER_ERROR.value
-    response: Dict = {"path": request.path, "message": exc.description}
+    response: dict[str, Any] = {"path": request.path, "message": exc.description}
     return response, code
 
 
-def val_exc_handler(exc: ValidationError) -> Tuple[Dict[str, Any], int]:
+def val_exc_handler(exc: ValidationError) -> tuple[dict[str, Any], int]:
     """Maps validationerror in a json structured response"""
     log.warning("ValidationError -> %s", str(exc), exc_info=exc)
-    response: Dict = {"path": request.path, "message": exc.errors()}
+    response: dict[str, Any] = {"path": request.path, "message": exc.errors()}
     return response, HTTPStatus.BAD_REQUEST.value
 
 
 def sqlalchemy_exc_handler(
     exc: IntegrityError,
-) -> Tuple[Dict[str, Union[str, None]], int]:
+) -> tuple[dict[str, str | None], int]:
     """Maps validationerror in a json structured response"""
     log.warning("IntegrityError -> %s", str(exc), exc_info=exc)
-    response: Dict = {"path": request.path, "message": str(exc.orig)}
+    response: dict[str, Any] = {"path": request.path, "message": str(exc.orig)}
     return response, HTTPStatus.BAD_REQUEST.value
 
 
-def base_exc_handler(exc: Exception) -> Tuple[Dict[str, str], int]:
+def base_exc_handler(exc: Exception) -> tuple[dict[str, str], int]:
     """Maps exception in a json structured response"""
     log.warning("Exception -> %s", str(exc), exc_info=exc)
-    response: Dict = {"path": request.path, "message": str(exc)}
+    response: dict[str, Any] = {"path": request.path, "message": str(exc)}
     if any(isinstance(exc, clazz) for clazz in BAD_REQUEST_CLASSES):
         code = HTTPStatus.BAD_REQUEST.value
     elif isinstance(exc, custom_exc.NotFoundException):
