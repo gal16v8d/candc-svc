@@ -45,9 +45,9 @@ def create_crud_resource(
     def fetch_one_data(item_id: int) -> Any:
         return get_by_id(model, item_id)
 
-    def map_item_to_json(item: Any) -> typing.ResponseReturnValue:
+    def map_item_to_json(item: type[SQLModel]) -> typing.ResponseReturnValue:
         """Map a single item into json schema"""
-        return schema(**item.to_dict()).dict(exclude_none=True)
+        return schema(**item.dict()).dict(exclude_none=True)
 
     @ns.route("")
     class CrudBaseResource(Resource):
@@ -122,7 +122,7 @@ def create_crud_resource(
                 items = get_by_query_args(model, query_params)
             else:
                 items = fetch_all_data()
-            items_schema = list(map(lambda i: schema(**i.to_dict()).dict(), items))
+            items_schema = list(map(lambda i: schema(**i.dict()).dict(), items))
             items_schema_html = render_template("table.html", data=items_schema)
             response = make_response(items_schema_html)
             response.headers["Content-Type"] = "text/html"

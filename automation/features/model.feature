@@ -43,19 +43,19 @@ Feature: Model endpoint check
         Then  user get error from api with code 404
 
     Examples:
-      | path                              |
-      | boats?name=IFV                    |
-      | boatxfactions?faction_id=999      |
-      | factions?faction_id=999           |
-      | games?name=C&C Tiberian Sun       |
-      | infantry?name=IFV                 | 
-      | infantryxfactions?faction_id=999  |
-      | planes?name=IFV                   |
-      | planexfactions?faction_id=999     |
-      | structures?name=Defender          |
-      | structurexfactions?faction_id=999 |
-      | tanks?name=Boomer                 |
-      | tankxfactions?faction_id=999      |
+      | path                                        |
+      | boats?name=IFV                              |
+      | boatxfactions?faction_id=999                |
+      | factions?faction_id=999                     |
+      | games?name=Command and Conquer Tiberian Sun |
+      | infantry?name=IFV                           | 
+      | infantryxfactions?faction_id=999            |
+      | planes?name=IFV                             |
+      | planexfactions?faction_id=999               |
+      | structures?name=Defender                    |
+      | structurexfactions?faction_id=999           |
+      | tanks?name=Boomer                           |
+      | tankxfactions?faction_id=999                |
 
     Scenario Outline: AT-08 Check model endpoint calls (GET) all with bad args
         When  user call model GET endpoint as /api/<path>

@@ -1,23 +1,10 @@
 """All schema definition"""
 
-from datetime import datetime
-from typing import Any, Optional
+from datetime import datetime, UTC
+from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
-from sqlalchemy import inspect
 from sqlmodel import BigInteger, Column, DateTime, Field, SQLModel, String
-
-
-# Base models
-class BaseSqlModelMixin(BaseModel):
-    """Add util method for all the models"""
-
-    def to_dict(self) -> dict[str, Any]:
-        """Transform sql model to dict"""
-        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
-
-    def __repr__(self) -> str:
-        return f"<{type(self).__name__} {self.name}>"
 
 
 class CommonDataMixin(BaseModel):
@@ -25,10 +12,12 @@ class CommonDataMixin(BaseModel):
 
     active: bool = Field(default=True, nullable=False)
     created_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime, default=datetime.utcnow, nullable=False)
+        sa_column=Column(DateTime, default=datetime.now(UTC), nullable=False)
     )
     updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+        sa_column=Column(
+            DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC)
+        )
     )
 
 
@@ -53,7 +42,7 @@ class DataCostMixin(BaseModel):
 
 
 # Schema data
-class BoatBase(SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, NamedMixin):
+class BoatBase(SQLModel, DataCostMixin, CommonDataMixin, NamedMixin):
     """Boat schema info"""
 
     boat_id: Optional[int] = Field(
@@ -62,7 +51,7 @@ class BoatBase(SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, Name
     can_go_ground: bool = Field(default=False, nullable=False)
 
 
-class BoatXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
+class BoatXFactionBase(SQLModel, CommonDataMixin):
     """BoatXFaction schema info"""
 
     id: Optional[int] = Field(
@@ -75,7 +64,7 @@ class BoatXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
     custom_cost: Optional[int] = Field(nullable=True)
 
 
-class FactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin, NamedMixin):
+class FactionBase(SQLModel, CommonDataMixin, NamedMixin):
     """Faction schema info"""
 
     faction_id: Optional[int] = Field(
@@ -85,7 +74,7 @@ class FactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin, NamedMixin):
     notes: str = Field(sa_column=Column(String(512), nullable=True))
 
 
-class GameBase(SQLModel, BaseSqlModelMixin, CommonDataMixin, NamedMixin):
+class GameBase(SQLModel, CommonDataMixin, NamedMixin):
     """Game schema info"""
 
     game_id: Optional[int] = Field(
@@ -93,9 +82,7 @@ class GameBase(SQLModel, BaseSqlModelMixin, CommonDataMixin, NamedMixin):
     )
 
 
-class InfantryBase(
-    SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, NamedMixin
-):
+class InfantryBase(SQLModel, DataCostMixin, CommonDataMixin, NamedMixin):
     """Infantry schema info"""
 
     infantry_id: Optional[int] = Field(
@@ -105,7 +92,7 @@ class InfantryBase(
     can_fly: bool = Field(default=False, nullable=False)
 
 
-class InfantryXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
+class InfantryXFactionBase(SQLModel, CommonDataMixin):
     """InfantryXFaction schema info"""
 
     id: Optional[int] = Field(
@@ -120,9 +107,7 @@ class InfantryXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
     custom_cost: Optional[int] = Field(nullable=True)
 
 
-class PlaneBase(
-    SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, NamedMixin
-):
+class PlaneBase(SQLModel, DataCostMixin, CommonDataMixin, NamedMixin):
     """Plane schema info"""
 
     plane_id: Optional[int] = Field(
@@ -130,7 +115,7 @@ class PlaneBase(
     )
 
 
-class PlaneXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
+class PlaneXFactionBase(SQLModel, CommonDataMixin):
     """PlaneXFaction schema info"""
 
     id: Optional[int] = Field(
@@ -145,9 +130,7 @@ class PlaneXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
     custom_cost: Optional[int] = Field(nullable=True)
 
 
-class StructureBase(
-    SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, NamedMixin
-):
+class StructureBase(SQLModel, DataCostMixin, CommonDataMixin, NamedMixin):
     """Structure schema info"""
 
     structure_id: Optional[int] = Field(
@@ -157,7 +140,7 @@ class StructureBase(
     base_defense: bool = Field(default=False, nullable=False)
 
 
-class StructureXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
+class StructureXFactionBase(SQLModel, CommonDataMixin):
     """StructureXFaction schema info"""
 
     id: Optional[int] = Field(
@@ -172,7 +155,7 @@ class StructureXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
     custom_cost: Optional[int] = Field(nullable=True)
 
 
-class TankBase(SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, NamedMixin):
+class TankBase(SQLModel, DataCostMixin, CommonDataMixin, NamedMixin):
     """Tank schema info"""
 
     tank_id: Optional[int] = Field(
@@ -181,7 +164,7 @@ class TankBase(SQLModel, BaseSqlModelMixin, DataCostMixin, CommonDataMixin, Name
     can_swim: bool = Field(default=False, nullable=False)
 
 
-class TankXFactionBase(SQLModel, BaseSqlModelMixin, CommonDataMixin):
+class TankXFactionBase(SQLModel, CommonDataMixin):
     """TankXFaction schema info"""
 
     id: Optional[int] = Field(

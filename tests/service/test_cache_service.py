@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from typing import Any, Dict, List
+from typing import Any
 
 from app.service.cache_service import CacheService
 
@@ -26,14 +26,13 @@ class TestCacheService(TestCase):
         self._cache_patch.stop()
 
     @staticmethod
-    def mock_fun(faction_id: int) -> List[Dict[str, Any]]:
+    def mock_fun(faction_id: int) -> list[dict[str, Any]]:
         """Mock fun to generate an expected boat body"""
         return [{"boat_id": faction_id}]
 
-    # pylint: disable=W0212
     def test_get_cache_keys(self) -> None:
         """test case for get_cache_keys"""
-        mock_dict: Dict[str, Any] = {self._boats: [], f"{self._boats}-1": {}}
+        mock_dict: dict[str, Any] = {self._boats: [], f"{self._boats}-1": {}}
         self._cache_mock.cache._cache.keys.return_value = mock_dict.keys()
         keys = self.cache_service.get_cache_keys()
         self.assertEqual([self._boats, f"{self._boats}-1"], keys)
