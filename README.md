@@ -68,6 +68,12 @@ Activate using the command:
 source .venv/bin/activate
 ```
 
+or
+
+```bash
+eval $(poetry env activate)
+```
+
 Exit virtual env:
 
 ```bash
@@ -165,9 +171,9 @@ Can be used this way:
 poetry run mypy app tests
 ```
 
-# swagger docs (flasgger)
+# swagger docs (flask-restx)
 
-http://{host}:{port}/apidocs
+http://{host}:{port}
 
 # Web deployment
 

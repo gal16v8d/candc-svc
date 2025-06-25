@@ -71,73 +71,61 @@ def create_app() -> Flask:
             "name": "boats",
             "model": models.Boat,
             "schema": schemas.BoatBase,
-            "schema_list": schemas.BoatList,
         },
         {
             "name": "boatxfactions",
             "model": models.BoatXFaction,
             "schema": schemas.BoatXFactionBase,
-            "schema_list": schemas.BoatXFactionList,
         },
         {
             "name": "factions",
             "model": models.Faction,
             "schema": schemas.FactionBase,
-            "schema_list": schemas.FactionList,
         },
         {
             "name": "games",
             "model": models.Game,
             "schema": schemas.GameBase,
-            "schema_list": schemas.GameList,
         },
         {
             "name": "infantry",
             "model": models.Infantry,
             "schema": schemas.InfantryBase,
-            "schema_list": schemas.InfantryList,
         },
         {
             "name": "infantryxfactions",
             "model": models.InfantryXFaction,
             "schema": schemas.InfantryXFactionBase,
-            "schema_list": schemas.InfantryXFactionList,
         },
         {
             "name": "planes",
             "model": models.Plane,
             "schema": schemas.PlaneBase,
-            "schema_list": schemas.PlaneList,
         },
         {
             "name": "planexfactions",
             "model": models.PlaneXFaction,
             "schema": schemas.PlaneXFactionBase,
-            "schema_list": schemas.PlaneXFactionList,
         },
         {
             "name": "structures",
             "model": models.Structure,
             "schema": schemas.StructureBase,
-            "schema_list": schemas.StructureList,
         },
         {
             "name": "structurexfactions",
             "model": models.StructureXFaction,
             "schema": schemas.StructureXFactionBase,
-            "schema_list": schemas.StructureXFactionList,
         },
         {
             "name": "tanks",
             "model": models.Tank,
             "schema": schemas.TankBase,
-            "schema_list": schemas.TankList,
         },
         {
             "name": "tankxfactions",
             "model": models.TankXFaction,
             "schema": schemas.TankXFactionBase,
-            "schema_list": schemas.TankXFactionList,
         },
     ]
 

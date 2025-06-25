@@ -25,7 +25,6 @@ def create_crud_resource(
     ns: Namespace,
     model: type[SQLModel],
     schema: type[BaseModel],
-    schema_list: type[BaseModel] | None = None,
 ) -> list:
     """Boilerplate code to create a crud resource"""
     name = model.__name__
@@ -45,9 +44,9 @@ def create_crud_resource(
     def fetch_one_data(item_id: int) -> Any:
         return get_by_id(model, item_id)
 
-    def map_item_to_json(item: type[SQLModel]) -> typing.ResponseReturnValue:
+    def map_item_to_dict(item: type[SQLModel], exclude_none: bool = True) -> dict[str, Any]:
         """Map a single item into json schema"""
-        return schema(**item.dict()).dict(exclude_none=True)
+        return schema(**item.model_dump()).model_dump(exclude_none=exclude_none)
 
     @ns.route("")
     class CrudBaseResource(Resource):
@@ -62,10 +61,8 @@ def create_crud_resource(
                 items = cache_service.fetch_from_cache_or_else(
                     get_cache_key(), fetch_all_data
                 )
-            if len(items) > 0 and schema_list is not None:
-                result = (
-                    schema_list(__root__=items).dict(exclude_none=True).get("__root__")
-                )
+            if len(items) > 0:
+                result = list(map(map_item_to_dict, items))
                 return jsonify(result)
             raise NotFoundException(name)
 
@@ -73,9 +70,9 @@ def create_crud_resource(
             """Allow to create an item"""
             payload = request.get_json()
             model_schema = schema(**payload)
-            result = save(model, model_schema.dict())
+            result = save(model, model_schema.model_dump())
             cache_service.clear_cache_by_name(get_cache_key())
-            data = map_item_to_json(result)
+            data = map_item_to_dict(result)
             return make_response(data, HTTPStatus.CREATED.value)
 
     @ns.route("/<item_id>")
@@ -89,7 +86,7 @@ def create_crud_resource(
                 get_cache_key(item_id), fetch_one_data, item_id=item_id
             )
             if item:
-                return jsonify(map_item_to_json(item))
+                return jsonify(map_item_to_dict(item))
             raise NotFoundException(name)
 
         def patch(self, item_id: int) -> typing.ResponseReturnValue:
@@ -99,7 +96,7 @@ def create_crud_resource(
             if item:
                 result = patch(item, payload)
                 cache_service.clear_cache_by_name(get_cache_key())
-                return jsonify(map_item_to_json(result))
+                return jsonify(map_item_to_dict(result))
             raise NotFoundException(name)
 
         def delete(self, item_id: int) -> typing.ResponseReturnValue:
@@ -122,7 +119,7 @@ def create_crud_resource(
                 items = get_by_query_args(model, query_params)
             else:
                 items = fetch_all_data()
-            items_schema = list(map(lambda i: schema(**i.dict()).dict(), items))
+            items_schema = list(map(lambda i: map_item_to_dict(i, False), items))
             items_schema_html = render_template("table.html", data=items_schema)
             response = make_response(items_schema_html)
             response.headers["Content-Type"] = "text/html"
@@ -142,7 +139,7 @@ def crud_route_ns(routes: list[dict[str, Any]]) -> list[Namespace]:
             path=f"/api/{model_name}",
         )
         resources = create_crud_resource(
-            ns, route.get("model"), route.get("schema"), route.get("schema_list")
+            ns, route.get("model"), route.get("schema")
         )
         # Append all the given path resources under the single namespace
         map(ns.add_resource, resources)

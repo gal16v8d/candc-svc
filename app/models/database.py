@@ -1,5 +1,6 @@
 """db and crud module"""
 
+from datetime import datetime, timezone
 from typing import Any, Final
 
 from sqlmodel import SQLModel
@@ -56,15 +57,19 @@ def save(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
 def patch(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
     """Update object in database"""
     session = db.session()
+    update_performed = False
     for key, value in data.items():
         if key in NON_UPDATABLE_FIELDS:
             raise UnpatchableFieldException(key)
         elif hasattr(model, key):
             setattr(model, key, value)
+            update_performed = True
         else:
             raise BadArgException(
                 f"Attribute '{key}' is not part of '{model.__tablename__}' info"
             )
+    if update_performed and hasattr(model, "updated_at"):
+        model.updated_at = datetime.now(timezone.utc)
     session.commit()
     session.refresh(model)
     return model
