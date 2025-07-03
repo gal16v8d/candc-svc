@@ -19,7 +19,7 @@ class CommonDataMixin(BaseModel):
 class NamedMixin(BaseModel):
     """Append common name prop to all models"""
 
-    name: str = Field(default=None, nullable=False, unique=True, max_length=64)
+    name: str = Field(nullable=False, unique=True, max_length=64)
 
 
 class DataCostMixin(BaseModel):
