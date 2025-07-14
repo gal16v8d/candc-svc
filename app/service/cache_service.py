@@ -17,7 +17,6 @@ class CacheService:
     def __init__(self) -> None:
         self.cache = app_cache
 
-    # pylint: disable=W0212
     def get_cache_keys(self) -> list[str]:
         """
         List all the keys present in cache

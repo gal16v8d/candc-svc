@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
+from pydantic_core import ErrorDetails
 from sqlmodel import BigInteger, Column, DateTime, Field, SQLModel, String
 
 
@@ -11,7 +12,9 @@ class CommonDataMixin(BaseModel):
     """This Mixin inherits logical attribute for entities"""
 
     active: bool = Field(default=True, nullable=False)
-    created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=False
+    )
     # need to handle now onupdate manually per sa_column + pydantic 2.x bug
     updated_at: Optional[datetime] = Field(DateTime, nullable=True)
 
@@ -29,7 +32,7 @@ class DataCostMixin(BaseModel):
     """
 
     base_cost: int = Field(nullable=False, ge=0)
-    notes: Optional[str] = Field(default=None , nullable=True, max_length=256)
+    notes: Optional[str] = Field(default=None, nullable=True, max_length=256)
     is_stealth: bool = Field(default=False, nullable=False)
     build_limit: bool = Field(default=False, nullable=False)
     is_special: bool = Field(default=False, nullable=False)
@@ -186,3 +189,11 @@ class MoneySpendRequest(BaseModel):
 
     faction_id: PositiveInt
     money: PositiveInt
+
+
+# Responses
+class ApiErrorResponse(BaseModel):
+    """Schema for API error response"""
+
+    path: str
+    message: str | list[ErrorDetails]

@@ -44,7 +44,9 @@ def create_crud_resource(
     def fetch_one_data(item_id: int) -> Any:
         return get_by_id(model, item_id)
 
-    def map_item_to_dict(item: type[SQLModel], exclude_none: bool = True) -> dict[str, Any]:
+    def map_item_to_dict(
+        item: type[SQLModel], exclude_none: bool = True
+    ) -> dict[str, Any]:
         """Map a single item into json schema"""
         return schema(**item.model_dump()).model_dump(exclude_none=exclude_none)
 
@@ -138,9 +140,7 @@ def crud_route_ns(routes: list[dict[str, Any]]) -> list[Namespace]:
             description=f"Crud service for {model_name} entity",
             path=f"/api/{model_name}",
         )
-        resources = create_crud_resource(
-            ns, route.get("model"), route.get("schema")
-        )
+        resources = create_crud_resource(ns, route.get("model"), route.get("schema"))
         # Append all the given path resources under the single namespace
         map(ns.add_resource, resources)
         ns_list.append(ns)

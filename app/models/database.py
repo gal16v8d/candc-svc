@@ -48,6 +48,8 @@ def save(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
     """Persist object in database"""
     session = db.session()
     obj = model(**data)
+    if hasattr(obj, "created_at") and obj.created_at is None:
+        obj.created_at = datetime.now(timezone.utc)
     session.add(obj)
     session.commit()
     session.refresh(obj)
@@ -61,7 +63,7 @@ def patch(model: type[SQLModel], data: dict[str, Any]) -> type[SQLModel]:
     for key, value in data.items():
         if key in NON_UPDATABLE_FIELDS:
             raise UnpatchableFieldException(key)
-        elif hasattr(model, key):
+        if hasattr(model, key):
             setattr(model, key, value)
             update_performed = True
         else:

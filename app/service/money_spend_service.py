@@ -150,16 +150,15 @@ class MoneySpendService:
                 result_list.append(selected_data.name)
                 money_to_spend -= MoneySpendService.retrieve_cost(selected_data)
         result_dict = dict(Counter(result_list))
-        return MoneySpend(units=result_dict, available_cash=money_to_spend).dict()
+        return MoneySpend(units=result_dict, available_cash=money_to_spend).model_dump()
 
-    # pylint: disable=C0121
     def get_data_by_faction_db(self, faction_id: int, data_dict: dict[str, Any]):
         """
         Fetch db to get all the boats available for the faction.
         """
-        first_model = data_dict["model_1"]
-        second_model = data_dict["model_2"]
-        from_clause = join(first_model, second_model, data_dict["on_clause"], True)
+        first_model = data_dict.get("model_1")
+        second_model = data_dict.get("model_2")
+        from_clause = join(first_model, second_model, data_dict.get("on_clause"), True)
         query_to_run = (
             select(
                 first_model.name,
