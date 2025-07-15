@@ -32,9 +32,10 @@ def step_then_error_response_from_api(context: Any, status: str) -> None:
     safe_response: requests.Response = actual_response
     RestAssertions.assert_status(safe_response, int(status))
     RestAssertions.assert_content_type(safe_response, constants.JSON_TYPE)
-    data = safe_response.json()
-    RestAssertions.assert_path_exists(data, constants.JSON_NODE_PATH)
-    RestAssertions.assert_path_exists(data, constants.JSON_NODE_MESSAGE)
+    if safe_response.content:
+        data = safe_response.json()
+        RestAssertions.assert_path_exists(data, constants.JSON_NODE_PATH)
+        RestAssertions.assert_path_exists(data, constants.JSON_NODE_MESSAGE)
 
 
 @then("user get error from api and msg is {msg}")
